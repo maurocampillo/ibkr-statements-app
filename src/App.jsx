@@ -1,11 +1,13 @@
 // src/App.js
 import React, { useState } from 'react';
+import {JSONTree} from 'react-json-tree';
 import Parser from './components/Parser';
 import DividendLineChart from './components/DividendLineChart';
 import './App.css';
 
 function App() {
   const [result, setResult] = useState(null);
+  const [totals, setTotals] = useState(null);
   const [showDividendLineChart, setShowDividendLineChart] = useState(false);
   const [chartData, setChartData] = useState([]);
 
@@ -32,7 +34,7 @@ function App() {
     <div className="App">
       <h1>Client-Side CSV Parser</h1>
       
-      <Parser setResult={setResult} />
+      <Parser setResult={setResult} setTotals={setTotals} />
 
       <button onClick={handleButtonClick}>Dividends</button>
 
@@ -43,7 +45,18 @@ function App() {
       {result && (
         <div className="result">
           <h3>Parsed Result:</h3>
-          <pre>{JSON.stringify(result, null, 2)}</pre>
+          <JSONTree
+            data={totals}
+            theme={"monokai"}
+            invertTheme={true}
+            shouldExpandNodeInitially={() => true} // Start with all nodes collapsed
+          />
+          <JSONTree
+            data={result}
+            theme={"monokai"}
+            invertTheme={true}
+            shouldExpandNodeInitially={() => true} // Start with all nodes collapsed
+          />
         </div>
       )}
     </div>

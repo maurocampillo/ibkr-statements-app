@@ -18,43 +18,67 @@ function Parser(props) {
     return result
   }
 
-  const skipRow = (section, obj) => {
-    if (["Dividends","Withholding Tax","Fees", "Deposits & Withdrawals", "Forex P/L Details", "Change in Dividend Accruals"].includes(section)) {
+  const skipFromResults = (section, obj) => {
+    if (["Dividends","Withholding Tax","Fees", "Deposits & Withdrawals", "Change in Dividend Accruals"].includes(section)) {
       return !obj?.date
     } else if (section === "Realized & Unrealized Performance Summary") {
       return !obj?.assetCategory
+    } else if (section === "Forex P/L Details") {
+      return !obj?.dateTime
     } else {
       return false
     }
   }
 
+  const generateSectionTotals = (section, values) => {
+      if ([
+        "Deposits & Withdrawals",
+        "Dividends",
+        "Interest",
+        "Withholding Tax",
+        "Change in Dividend Accruals",
+      ].includes(section)) {
+        // Generic total extraction for sections which contains the total as last row element
+        debugger
+        return  values.at(-1).filter((v) => v !== "").at(-1)
+      } else {
+        console.log("Unknown totals for section: ", section)
+      }
+    }
+
   const handleCSVLoad = (data, fileInfo) => {
     setIsLoading(true);
     setError(null);
-
+    let totals = {};
     try {
       const result = {};
       let sectionsData = Object.groupBy(data, (element) => { return element[0] } )
       let sectionNames = Object.keys(sectionsData)
 
       sectionNames.forEach(sectionName => {
+        if(sectionName === "Trades") return
         const [headers, ...values] = sectionsData[sectionName]
         const headerSectionNames = headers.slice(2, headers.length)
-        const relevantValues = values.filter((e) => e[1] === "Data" )
+        const camelCasedSectionName = toCamelCase(sectionName)
         let sectionParsedData = []
+        let sectionTotals = generateSectionTotals(sectionName, values)
 
-        relevantValues.forEach((rv) => {
+        if(sectionTotals){
+          totals[camelCasedSectionName] = sectionTotals
+        }
+        values.forEach((rv, index) => {
           let r = rv.slice(2, rv.length)
           let obj = headersAndValues(headerSectionNames, r)
 
-          if (!skipRow(sectionName, obj)){
+          if (!skipFromResults(sectionName, obj)){
             sectionParsedData.push(obj)
           }
         })
 
-        result[toCamelCase(sectionName)] = sectionParsedData
+        result[camelCasedSectionName] = sectionParsedData
       });
 
+      props.setTotals(totals)
       props.setResult(result);
     } catch (err) {
       setError('Error parsing CSV file: ' + err.message);
