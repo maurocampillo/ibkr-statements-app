@@ -19,13 +19,14 @@ function App() {
   };
 
   // Format data for Nivo Line chart
-  const formatDataForNivo = (data) => {
+  const formatDividendDataForLienChart = (data) => {
+    let groupedData = Object.groupBy(data, (d) => d.date)
     const lineData = {
       id: 'Dividends',
-      data: data.map(item => ({
-        x: item.date, // Date for x-axis
-        y: parseFloat(item.amount) // Convert amount to number for y-axis
-      }))
+      data: Object.keys(groupedData).map(keyDate => ({
+        x: keyDate, // Date for x-axis
+        y: groupedData[keyDate].map((e) => parseFloat(e.amount)).reduce((a,b) => a + b, 0)
+      })).sort((a, b) => new Date(a.x) - new Date(b.x))
     };
     return [lineData];
   };
@@ -90,7 +91,7 @@ function App() {
   };
 
   const handleButtonClick = () => {
-    const data = formatDataForNivo(result.dividends)
+    const data = formatDividendDataForLienChart(result.dividends)
     console.log(data)
     setChartData(data);
     setShowChart(true);
