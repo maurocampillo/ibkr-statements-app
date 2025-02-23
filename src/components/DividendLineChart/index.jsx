@@ -2,7 +2,7 @@ import { ResponsiveLine } from '@nivo/line';
 
 function DividendLineChart(props) {
   return (
-    <div style={{ height: '400px', width: '800px', marginTop: '20px' }}>
+    <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
       <ResponsiveLine
         data={props.chartData}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
