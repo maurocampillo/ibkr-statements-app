@@ -2,13 +2,14 @@
 import React, { useState } from 'react';
 import CSVReader from 'react-csv-reader';
 import { ResponsiveLine } from '@nivo/line';
+import DividendLineChart from './components/DividendLineChart';
 import './App.css';
 
 function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showChart, setShowChart] = useState(false);
+  const [showDividendLineChart, setShowDividendLineChart] = useState(false);
   const [chartData, setChartData] = useState([]);
 
   // Utility function to convert string to camelCase
@@ -94,7 +95,7 @@ function App() {
     const data = formatDividendDataForLienChart(result.dividends)
     console.log(data)
     setChartData(data);
-    setShowChart(true);
+    setShowDividendLineChart(true);
   };
 
   return (
@@ -121,80 +122,9 @@ function App() {
 
       <button onClick={handleButtonClick}>Dividends</button>
 
-      {showChart && (
-              <div style={{ height: '400px', width: '800px', marginTop: '20px' }}>
-                <ResponsiveLine
-                  data={chartData}
-                  margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-                  xScale={{
-                    type: 'time',
-                    format: '%Y-%m-%d',
-                    useUTC: false,
-                    precision: 'day'
-                  }}
-                  xFormat="time:%Y-%m-%d"
-                  yScale={{
-                    type: 'linear',
-                    min: 0,
-                    max: 'auto',
-                    stacked: false,
-                    reverse: false
-                  }}
-                  axisTop={null}
-                  axisRight={null}
-                  axisBottom={{
-                    format: '%Y-%m-%d',
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: -45,
-                    legend: 'Date',
-                    legendOffset: 36,
-                    legendPosition: 'middle'
-                  }}
-                  axisLeft={{
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: 'Amount',
-                    legendOffset: -40,
-                    legendPosition: 'middle'
-                  }}
-                  pointSize={10}
-                  pointColor={{ theme: 'background' }}
-                  pointBorderWidth={2}
-                  pointBorderColor={{ from: 'serieColor' }}
-                  pointLabel="y"
-                  pointLabelYOffset={-12}
-                  useMesh={true}
-                  legends={[
-                    {
-                      anchor: 'bottom-right',
-                      direction: 'column',
-                      justify: false,
-                      translateX: 100,
-                      translateY: 0,
-                      itemsSpacing: 0,
-                      itemDirection: 'left-to-right',
-                      itemWidth: 80,
-                      itemHeight: 20,
-                      itemOpacity: 0.75,
-                      symbolSize: 12,
-                      symbolShape: 'circle',
-                      symbolBorderColor: 'rgba(0, 0, 0, .5)',
-                      effects: [
-                        {
-                          on: 'hover',
-                          style: {
-                            itemBackground: 'rgba(0, 0, 0, .03)',
-                            itemOpacity: 1
-                          }
-                        }
-                      ]
-                    }
-                  ]}
-                />
-              </div>
-            )}
+      {showDividendLineChart && (
+        <DividendLineChart chartData={chartData}/>
+      )}
 
       {error && (
         <div className="error">
