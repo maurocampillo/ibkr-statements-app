@@ -8,11 +8,12 @@ function Parser(props) {
   // Utility function to convert string to camelCase
   const toCamelCase = (str) => {
     return str
+      .replace(/[()]/g, '').trim()
       .toLowerCase()
       .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase());
   };
 
-  const headersAndValues = (headers, values) => {
+  const rowToObject = (headers, values) => {
     let result = {}
     headers.forEach((e, i) => result[toCamelCase(e)] = values[i])
     return result
@@ -30,21 +31,34 @@ function Parser(props) {
     }
   }
 
-  const generateSectionTotals = (section, values) => {
-      if ([
-        "Deposits & Withdrawals",
-        "Dividends",
-        "Interest",
-        "Withholding Tax",
-        "Change in Dividend Accruals",
-      ].includes(section)) {
-        // Generic total extraction for sections which contains the total as last row element
-        debugger
-        return  values.at(-1).filter((v) => v !== "").at(-1)
-      } else {
-        console.log("Unknown totals for section: ", section)
-      }
+  const generateSectionTotals = (section, headerSectionNames, values) => {
+    if ([
+      "Deposits & Withdrawals",
+      "Dividends",
+      "Interest",
+      "Withholding Tax",
+      "Change in Dividend Accruals",
+    ].includes(section)) {
+      // Generic total extraction for sections which contains the total as last row element
+      return  values.at(-1).filter((v) => v !== "").at(-1)
+    } else if (section === "Realized & Unrealized Performance Summary"){
+      // Special case for Realized & Unrealized Performance Summary
+      let totals = {}
+      values.reduce((accum, elem, index) => {
+        const obj = rowToObject(headerSectionNames, elem.slice(2, elem.length))
+        if (obj.assetCategory === "Total") {
+          const previousAssetCategory = toCamelCase(values[index-1][2])
+          accum[previousAssetCategory] = obj
+        } else if (obj.assetCategory === "Total (All Assets)") {
+          accum["total"] = obj
+        }
+        return accum;
+      }, totals)
+      return totals
+    } else {
+      console.log("Unknown totals for section: ", section)
     }
+  }
 
   const handleCSVLoad = (data, fileInfo) => {
     setIsLoading(true);
@@ -61,14 +75,14 @@ function Parser(props) {
         const headerSectionNames = headers.slice(2, headers.length)
         const camelCasedSectionName = toCamelCase(sectionName)
         let sectionParsedData = []
-        let sectionTotals = generateSectionTotals(sectionName, values)
+        let sectionTotals = generateSectionTotals(sectionName, headerSectionNames, values)
 
         if(sectionTotals){
           totals[camelCasedSectionName] = sectionTotals
         }
         values.forEach((rv, index) => {
           let r = rv.slice(2, rv.length)
-          let obj = headersAndValues(headerSectionNames, r)
+          let obj = rowToObject(headerSectionNames, r)
 
           if (!skipFromResults(sectionName, obj)){
             sectionParsedData.push(obj)
