@@ -1,10 +1,12 @@
 // src/App.js
 import React, { useState } from 'react';
-import {JSONTree} from 'react-json-tree';
+import { JsonEditor } from 'json-edit-react'
 import Parser from './components/Parser';
+import utils from './utils/parsing';
 import DividendLineChart from './components/DividendLineChart';
 import SankeyRealizedGainsChart from './components/SankeyRealizedGainsChart';
 import './App.css';
+import _ from 'lodash';
 
 function App() {
   const [result, setResult] = useState(null);
@@ -27,7 +29,6 @@ function App() {
 
   // Format data for Nivo Line chart
   const formatRealizedGainsDataForSankeyChart = (data) => {
-    debugger
     return {
       "nodes": [
         {
@@ -67,6 +68,21 @@ function App() {
     }
   };
 
+  const formatRealizedGainsDataForSankeyChartBySymbol = () => {
+    const data = utils.computeRealizedGainsForSankey(result)
+    const arrayForSankey = _.sortBy(Object.values(data), ["symbol"])
+    const nodes = arrayForSankey.map((d) => {
+      return { "id": d.symbol }
+    })
+    const links = arrayForSankey.map((d) => {
+      return {"source": d.symbol, "value": d.total, "target": "total" }
+    })
+    return {
+      "nodes": nodes.concat({ "id": "total" }),
+      "links": links,
+    }
+  }
+
   const handleDividendsClick = () => {
     const data = formatDividendDataForLineChart(result.dividends)
     setChartData(data);
@@ -79,6 +95,12 @@ function App() {
     setShowChart("realizedGainsSankeyCart");
   };
 
+  const handleRealizedGainsBySymbolClick = () => {
+    const data = formatRealizedGainsDataForSankeyChartBySymbol(totals)
+    setChartData(data);
+    setShowChart("realizedGainsSankeyCartBySymbol");
+  }
+
   return (
     <div className="App">
       <h1>Client-Side CSV Parser</h1>
@@ -87,6 +109,7 @@ function App() {
 
       <button onClick={handleDividendsClick}>Dividends</button>
       <button onClick={handleRealizedGainsClick}>Realized Gains</button>
+      <button onClick={handleRealizedGainsBySymbolClick}>Realized Gains by Symbol</button>
 
       {showChart === "dividendsLineChart" && (
         <DividendLineChart chartData={chartData}/>
@@ -96,20 +119,18 @@ function App() {
         <SankeyRealizedGainsChart chartData={chartData}/>
       )}
 
+      {showChart === "realizedGainsSankeyCartBySymbol" && (
+        <SankeyRealizedGainsChart chartData={chartData}/>
+      )}
+
       {result && (
         <div className="result">
           <h3>Parsed Result:</h3>
-          <JSONTree
+          <JsonEditor
             data={totals}
-            theme={"monokai"}
-            invertTheme={true}
-            shouldExpandNodeInitially={() => true} // Start with all nodes collapsed
           />
-          <JSONTree
+          <JsonEditor
             data={result}
-            theme={"monokai"}
-            invertTheme={true}
-            shouldExpandNodeInitially={() => true} // Start with all nodes collapsed
           />
         </div>
       )}

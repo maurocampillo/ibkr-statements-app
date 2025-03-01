@@ -11,7 +11,7 @@ function SankeyRealizedGainsChart(props) {
         nodeOpacity={1}
         nodeHoverOthersOpacity={0.35}
         nodeThickness={18}
-        nodeSpacing={24}
+        nodeSpacing={10}
         nodeBorderWidth={0}
         nodeBorderColor={{
             from: 'color',
@@ -27,6 +27,7 @@ function SankeyRealizedGainsChart(props) {
         linkHoverOthersOpacity={0.1}
         linkContract={3}
         enableLinkGradient={true}
+        enableLabels={true}
         labelPosition="inside"
         sort="input"
         labelPadding={16}
