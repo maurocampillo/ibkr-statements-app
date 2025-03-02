@@ -1,6 +1,6 @@
 // src/App.js
 import React, { useState } from 'react';
-import { JsonEditor } from 'json-edit-react'
+import ReactJson from 'react-json-view';
 import Parser from './components/Parser';
 import utils from './utils/parsing';
 import DividendLineChart from './components/DividendLineChart';
@@ -126,12 +126,8 @@ function App() {
       {result && (
         <div className="result">
           <h3>Parsed Result:</h3>
-          <JsonEditor
-            data={totals}
-          />
-          <JsonEditor
-            data={result}
-          />
+          <ReactJson src={totals}/>
+          <ReactJson src={result}/>
         </div>
       )}
     </div>

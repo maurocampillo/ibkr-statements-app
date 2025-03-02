@@ -2,7 +2,7 @@ import { ResponsiveSankey } from '@nivo/sankey'
 
 function SankeyRealizedGainsChart(props) {
   return (
-    <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
+    <div style={{ height: '800px', width: '100%', marginTop: '20px' }}>
       <ResponsiveSankey
         data={props.chartData}
         margin={{ top: 40, right: 160, bottom: 40, left: 50 }}
