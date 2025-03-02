@@ -30,6 +30,8 @@ function SankeyRealizedGainsChart(props) {
         enableLabels={true}
         labelPosition="inside"
         sort="input"
+        valueFormat={value =>
+          `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         labelPadding={16}
         labelTextColor={{
             from: 'color',

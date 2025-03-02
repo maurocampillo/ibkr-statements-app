@@ -71,7 +71,6 @@ const computeRealizedGains = (data) => {
 
 const combineRealizedGainsAndNetDividends = (gains, dividends) => {
   const keys = _.uniq(Object.keys(gains).concat(Object.keys(dividends)))
-  debugger
   return keys.reduce((accum, key) => {
     const gain = gains[key] ? gains[key].total : 0
     const dividend = dividends[key] ? dividends[key].total : 0
@@ -83,15 +82,31 @@ const combineRealizedGainsAndNetDividends = (gains, dividends) => {
     return accum
   }, {})
 }
-const computeRealizedGainsForSankey = (data) => {
+const computeRealizedGainsForSankey2 = (data) => {
   const realizedAndUnrealized = processRealizedAndUnrealizedEntriesBySymbol(data)
   const realizedGainsComputed = computeRealizedGains(realizedAndUnrealized)
   const dividends = processDividends(data)
   const dividendTaxes = processDividendsWithholdingTax(data)
   const netDividends = processNetDividends(dividends, dividendTaxes)
-  let total = combineRealizedGainsAndNetDividends(realizedGainsComputed, netDividends)
-  debugger
+  const total = combineRealizedGainsAndNetDividends(realizedGainsComputed, netDividends)
   return total
+}
+
+const computeRealizedGainsForSankey = (data) => {
+  const result = computeRealizedGainsForSankey2(data)
+  const sortedArray = _.sortBy(Object.values(result), (e) => (-1) * e.total)
+  const largerPartition = sortedArray.slice(0, 10)
+  const smallerPartition = sortedArray.slice(10, sortedArray.length) || []
+  const otherTotal = _.sumBy(smallerPartition, "total")
+  const largerPartitionObject = {}
+  largerPartition.reduce((accum, elem) => {
+    accum[elem.symbol] = elem
+    return accum
+  }, largerPartitionObject)
+  if(otherTotal > 0) {
+    largerPartitionObject["other"] = { "symbol": "other", "total": otherTotal }
+  }
+  return largerPartitionObject
 }
 
 const utils = { computeRealizedGainsForSankey };
