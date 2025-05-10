@@ -1,4 +1,5 @@
 import { ResponsiveSankey } from '@nivo/sankey'
+import { BasicTooltip } from '@nivo/tooltip'
 
 function SankeyRealizedGainsChart(props) {
   return (
@@ -42,6 +43,17 @@ function SankeyRealizedGainsChart(props) {
                 ]
             ]
         }}
+        nodeTooltip={({
+            node
+          }) => {
+            return <BasicTooltip
+              id={node.label}
+              value={node.formattedValue}
+              enableChip={true}
+              color={node.color}
+            />
+          }
+        }
         legends={[
             {
                 anchor: 'bottom-right',

@@ -14,16 +14,25 @@ function App() {
   const [showChart, setShowChart] = useState(undefined)
   const [chartData, setChartData] = useState([]);
 
-  // Format data for Nivo Line chart
+  // Format data for Nivo Line chart, TODO: Move to utils
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+        month: 'short',
+        year: 'numeric'
+      })
+  }
+
   const formatDividendDataForLineChart = (data) => {
-    let groupedData = Object.groupBy(data, (d) => d.date)
+    let groupedData = Object.groupBy(data, (d) => formatDate(d.date))
     const lineData = {
       id: 'Dividends',
       data: Object.keys(groupedData).map(keyDate => ({
         x: keyDate, // Date for x-axis
-        y: groupedData[keyDate].map((e) => parseFloat(e.amount)).reduce((a,b) => a + b, 0)
+        y: groupedData[keyDate].map((e) => parseFloat(e.amount)).reduce((a,b) => a + b, 0),
+        id: formatDate(keyDate), // Date for x-axis
       })).sort((a, b) => new Date(a.x) - new Date(b.x))
     };
+    console.log("lineData", lineData)
     return [lineData];
   };
 

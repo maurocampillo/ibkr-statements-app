@@ -7,37 +7,40 @@ function DividendLineChart(props) {
         data={props.chartData}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
         xScale={{
-          type: 'time',
-          format: '%Y-%m-%d',
-          useUTC: false,
-          precision: 'day'
+          type: 'point',
         }}
-        xFormat="time:%Y-%m-%d"
         yScale={{
           type: 'linear',
           min: 0,
           max: 'auto',
-          stacked: false,
+          stacked: true,
           reverse: false
         }}
+        yFormat=" >$.2f"
+        curve="monotoneX"
+        enableCrosshair={false}
         axisTop={null}
         axisRight={null}
         axisBottom={{
-          format: '%Y-%m-%d',
           tickSize: 5,
-          tickPadding: 5,
-          tickRotation: -45,
-          legend: 'Date',
-          legendOffset: 36,
+          tickPadding: 7,
+          tickRotation: 0,
+          legend: 'Months',
+          legendOffset: 40,
           legendPosition: 'middle'
         }}
         axisLeft={{
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: 'Amount',
-          legendOffset: -40,
-          legendPosition: 'middle'
+          legendPosition: 'middle',
+          format: (v) => {
+            //Move to utils
+            return v.toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD'
+           });
+          }
         }}
         pointSize={10}
         pointColor={{ theme: 'background' }}
@@ -65,7 +68,7 @@ function DividendLineChart(props) {
               {
                 on: 'hover',
                 style: {
-                  itemBackground: 'rgba(0, 0, 0, .03)',
+                  itemBackground: 'rgba(0, 0, 0, .06)',
                   itemOpacity: 1
                 }
               }
