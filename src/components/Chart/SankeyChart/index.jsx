@@ -1,7 +1,7 @@
 import { ResponsiveSankey } from '@nivo/sankey'
 import { BasicTooltip } from '@nivo/tooltip'
 
-function SankeyRealizedGainsChart(props) {
+function SankeyChart(props) {
   return (
     <div style={{ height: '800px', width: '100%', marginTop: '20px' }}>
       <ResponsiveSankey
@@ -79,4 +79,4 @@ function SankeyRealizedGainsChart(props) {
     </div>)
 }
 
-export default SankeyRealizedGainsChart;
+export default SankeyChart;

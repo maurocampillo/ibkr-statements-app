@@ -32,6 +32,53 @@ function Parser(props) {
     }
   }
 
+  const generateTrades = (sectionName, headers, values) => {
+    // Return empty if not trades data
+    if (sectionName !== 'Trades') {
+      return [];
+    }    
+
+    // Get the index of the "Header" column
+    const headerIndex = headers.indexOf('Header');
+    // Process each row and return array of trade objects
+    return values.reduce((trades, row) => {
+      // Skip if not a "Data" row
+      if (row[headerIndex] !== 'Data') {
+        return trades;
+      }
+
+      const tradeObject = {};
+      headers.forEach((header, index) => {
+        
+        debugger
+        
+        const value = row[index];
+        
+        // Handle numeric fields
+        if (['Quantity', 'T. Price', 'Proceeds', 'Comm/Fee', 'Basis', 'Realized P/L'].includes(header)) {
+          // Remove commas from numbers and convert to float
+          const numericValue = value ? parseFloat(value.replace(/,/g, '')) : null;
+          // Convert the header to camelCase
+          const fieldName = header
+            .toLowerCase()
+            .replace(/[/.]/g, '') // Remove dots and slashes
+            .replace(/\s+(.)/g, (match, group1) => group1.toUpperCase());
+          tradeObject[fieldName] = !isNaN(numericValue) ? numericValue : null;
+        } else {
+          // Convert the header to camelCase
+          const fieldName = header
+            .toLowerCase()
+            .replace(/[/.]/g, '') // Remove dots and slashes
+            .replace(/\s+(.)/g, (match, group1) => group1.toUpperCase());
+          tradeObject[fieldName] = value || null;
+        }
+      });
+
+      trades.push(tradeObject);
+      return trades;
+    }, []);
+  };
+
   const generateSectionTotals = (section, headerSectionNames, values) => {
     if ([
       "Deposits & Withdrawals",
@@ -71,26 +118,30 @@ function Parser(props) {
       let sectionNames = Object.keys(sectionsData)
 
       sectionNames.forEach(sectionName => {
-        if(sectionName === "Trades") return
-        const [headers, ...values] = sectionsData[sectionName]
-        const headerSectionNames = headers.slice(2, headers.length)
-        const camelCasedSectionName = toCamelCase(sectionName)
-        let sectionParsedData = []
-        let sectionTotals = generateSectionTotals(sectionName, headerSectionNames, values)
+        const [headers, ...values] = sectionsData[sectionName]          
+        if(sectionName === "Trades") {
+          let generatedTrades = generateTrades(sectionName, headers, values)          
+          props.setTrades(generatedTrades)
+        } else {               
+          const headerSectionNames = headers.slice(2, headers.length)      
+          const camelCasedSectionName = toCamelCase(sectionName)
+          let sectionParsedData = []
+          let sectionTotals = generateSectionTotals(sectionName, headerSectionNames, values)          
 
-        if(sectionTotals){
-          totals[camelCasedSectionName] = sectionTotals
-        }
-        values.forEach((rv, index) => {
-          let r = rv.slice(2, rv.length)
-          let obj = rowToObject(headerSectionNames, r)
-
-          if (!skipFromResults(sectionName, obj)){
-            sectionParsedData.push(obj)
+          if(sectionTotals){
+            totals[camelCasedSectionName] = sectionTotals
           }
-        })
+          values.forEach((rv, index) => {
+            let r = rv.slice(2, rv.length)
+            let obj = rowToObject(headerSectionNames, r)
 
-        result[camelCasedSectionName] = sectionParsedData
+            if (!skipFromResults(sectionName, obj)){
+              sectionParsedData.push(obj)
+            }
+          })
+
+          result[camelCasedSectionName] = sectionParsedData
+        }
       });
 
       props.setTotals(totals)

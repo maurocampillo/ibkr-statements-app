@@ -82,18 +82,29 @@ const combineRealizedGainsAndNetDividends = (gains, dividends) => {
     return accum
   }, {})
 }
-const computeRealizedGainsForSankey2 = (data) => {
+// const computeRealizedGainsForSankey2 = (data) => {
+//   const realizedAndUnrealized = processRealizedAndUnrealizedEntriesBySymbol(data)
+//   const realizedGainsComputed = computeRealizedGains(realizedAndUnrealized)
+//   const dividends = processDividends(data)
+//   const dividendTaxes = processDividendsWithholdingTax(data)
+//   const netDividends = processNetDividends(dividends, dividendTaxes)
+//   const total = combineRealizedGainsAndNetDividends(realizedGainsComputed, netDividends)
+//   return total
+// }
+
+const computeRealizedGainsByCategory = (data) => {
   const realizedAndUnrealized = processRealizedAndUnrealizedEntriesBySymbol(data)
-  const realizedGainsComputed = computeRealizedGains(realizedAndUnrealized)
-  const dividends = processDividends(data)
+  const realizedGains = computeRealizedGains(realizedAndUnrealized)
+  const grossDividends = processDividends(data)
   const dividendTaxes = processDividendsWithholdingTax(data)
-  const netDividends = processNetDividends(dividends, dividendTaxes)
-  const total = combineRealizedGainsAndNetDividends(realizedGainsComputed, netDividends)
-  return total
+  const dividends = processNetDividends(grossDividends, dividendTaxes)
+  const total = combineRealizedGainsAndNetDividends(realizedGains, dividends)
+  return {realizedGains, dividends, total}
 }
 
 const computeRealizedGainsForSankey = (data) => {
-  const result = computeRealizedGainsForSankey2(data)
+  const result = computeRealizedGainsByCategory(data).total
+
   const sortedArray = _.sortBy(Object.values(result), (e) => (-1) * e.total)
   const largerPartition = sortedArray.slice(0, 10)
   const smallerPartition = sortedArray.slice(10, sortedArray.length) || []
@@ -109,5 +120,35 @@ const computeRealizedGainsForSankey = (data) => {
   return largerPartitionObject
 }
 
-const utils = { computeRealizedGainsForSankey };
+const aggregateSmallerGains = (gains, n) => {
+  const sortedGains = _.sortBy(Object.values(gains), (e) => (-1) * e.total)
+  const largerPartition = sortedGains.slice(0, n)
+  const smallerPartition = sortedGains.slice(n, sortedGains.length) || []
+  const otherTotal = _.sumBy(smallerPartition, "total")
+  const largerPartitionObject = {}
+  largerPartition.reduce((accum, elem) => { 
+    accum[elem.symbol] = elem
+    return accum
+  }, largerPartitionObject)
+  if(otherTotal > 0) {
+    largerPartitionObject["other"] = { "symbol": "other", "total": otherTotal }
+  }
+  return largerPartitionObject
+}
+
+const computeRealizedGainsByCategoryForSankey = (data) => {
+  const {realizedGains, dividends, total} = computeRealizedGainsByCategory(data)
+
+  const sortedArrayRealizedGains = aggregateSmallerGains(realizedGains, 10)
+  const sortedArrayDividends = aggregateSmallerGains(dividends, 5)
+  const sortedArrayTotal = aggregateSmallerGains(total, 10)
+
+  return {
+    realizedGains: sortedArrayRealizedGains,
+    dividends: sortedArrayDividends,
+    total: sortedArrayTotal,
+  }
+}
+
+const utils = { computeRealizedGainsForSankey, computeRealizedGainsByCategoryForSankey };
 export default utils;
