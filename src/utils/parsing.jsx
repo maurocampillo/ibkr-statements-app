@@ -82,8 +82,7 @@ const combineRealizedGainsAndNetDividends = (gains, dividends) => {
 }
 
 const computeRealizedGainsByCategory = (data) => {
-  const realizedAndUnrealized = processRealizedAndUnrealizedEntriesBySymbol(data)
-  debugger
+  const realizedAndUnrealized = processRealizedAndUnrealizedEntriesBySymbol(data)  
   const realizedGains = computeRealizedGains(realizedAndUnrealized)
   const grossDividends = processDividends(data)
   const dividendTaxes = processDividendsWithholdingTax(data)

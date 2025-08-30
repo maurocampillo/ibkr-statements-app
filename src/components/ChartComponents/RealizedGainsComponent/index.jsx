@@ -60,6 +60,7 @@ const RealizedGainsComponent = ({
       }
 
       const data = chart.handler();
+      debugger
       setChartData(data);
       setActiveChart(chartType);
     } catch (err) {

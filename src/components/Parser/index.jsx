@@ -142,8 +142,7 @@ function Parser(props) {
 
           result[camelCasedSectionName] = sectionParsedData
         }
-      });
-      debugger
+      });      
       props.setTotals(totals)
       props.setSectionsData(result);
     } catch (err) {
