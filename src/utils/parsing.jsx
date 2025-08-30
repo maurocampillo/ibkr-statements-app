@@ -1,6 +1,4 @@
 import _ from 'lodash';
-//   Generate totals per symbol, eg:
-//   {"ADBE": [{ "symbol": "ADBE", "assetCategory": "Stocks", "realizedTotal": "0", "unrealizedTotal": "-913.392154", "total": "-913.392154" }]}
 
 const processRealizedAndUnrealizedEntriesBySymbol = (data) => {
   const realizedAndUnrealizedRecords = data["realizedUnrealizedPerformanceSummary"].map((e) => {
@@ -82,18 +80,10 @@ const combineRealizedGainsAndNetDividends = (gains, dividends) => {
     return accum
   }, {})
 }
-// const computeRealizedGainsForSankey2 = (data) => {
-//   const realizedAndUnrealized = processRealizedAndUnrealizedEntriesBySymbol(data)
-//   const realizedGainsComputed = computeRealizedGains(realizedAndUnrealized)
-//   const dividends = processDividends(data)
-//   const dividendTaxes = processDividendsWithholdingTax(data)
-//   const netDividends = processNetDividends(dividends, dividendTaxes)
-//   const total = combineRealizedGainsAndNetDividends(realizedGainsComputed, netDividends)
-//   return total
-// }
 
 const computeRealizedGainsByCategory = (data) => {
   const realizedAndUnrealized = processRealizedAndUnrealizedEntriesBySymbol(data)
+  debugger
   const realizedGains = computeRealizedGains(realizedAndUnrealized)
   const grossDividends = processDividends(data)
   const dividendTaxes = processDividendsWithholdingTax(data)

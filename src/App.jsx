@@ -10,7 +10,7 @@ import './App.css';
 import _ from 'lodash';
 
 function App() {
-  const [result, setResult] = useState(null);
+  const [sectionsData, setSectionsData] = useState(null);
   const [trades, setTrades] = useState(null);
   const [totals, setTotals] = useState(null);
   const [showChart, setShowChart] = useState(undefined)
@@ -80,7 +80,7 @@ function App() {
   };
 
   const formatRealizedGainsDataForSankeyChartBySymbol = () => {
-    const data = utils.computeRealizedGainsForSankey(result)    
+    const data = utils.computeRealizedGainsForSankey(sectionsData)    
     const arrayForSankey = _.sortBy(Object.values(data), ["symbol"])
     const nodes = arrayForSankey.map((d) => {
       return { "id": d.symbol }
@@ -95,7 +95,7 @@ function App() {
   }
 
   const formatRealizedGainsDataForSankeyChartByCategory = () => {
-    const {realizedGains, dividends, total} = utils.computeRealizedGainsByCategoryForSankey(result)
+    const {realizedGains, dividends, total} = utils.computeRealizedGainsByCategoryForSankey(sectionsData)
     
     const realizedGainsArrayForSankey = _.sortBy(Object.values(realizedGains), ["symbol"])
     
@@ -181,7 +181,7 @@ function App() {
   }
 
   const handleDividendsClick = () => {
-    const data = formatDividendDataForLineChart(result.dividends)
+    const data = formatDividendDataForLineChart(sectionsData.dividends)
     setChartData(data);
     setShowChart("dividendsLineChart");
   };
@@ -205,7 +205,7 @@ function App() {
   }
 
   const handleCalendarChartClick = () => {
-    const data = formatCalendarChartData(trades, result.dividends)
+    const data = formatCalendarChartData(trades, sectionsData.dividends)
     setChartData(data);
     setShowChart("calendarChart");
   }
@@ -214,7 +214,7 @@ function App() {
     <div className="App">
       <h1>Client-Side CSV Parser</h1>
       
-      <Parser setResult={setResult} setTotals={setTotals} setTrades={setTrades} />
+      <Parser setSectionsData={setSectionsData} setTotals={setTotals} setTrades={setTrades} />
 
       <button onClick={handleDividendsClick}>Dividends</button>
       <button onClick={handleRealizedGainsClick}>Realized Gains</button>
@@ -247,9 +247,9 @@ function App() {
         />
       )}
 
-      {result && (
+      {sectionsData && (
         <div className="result">
-          <h3>Parsed Result:</h3>          
+          <h3>Parsed Sections Data:</h3>          
           <ReactJson src={trades}/>
         </div>
       )}

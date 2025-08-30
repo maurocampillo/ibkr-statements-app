@@ -48,9 +48,7 @@ function Parser(props) {
       }
 
       const tradeObject = {};
-      headers.forEach((header, index) => {
-        
-        debugger
+      headers.forEach((header, index) => {        
         
         const value = row[index];
         
@@ -120,9 +118,11 @@ function Parser(props) {
       sectionNames.forEach(sectionName => {
         const [headers, ...values] = sectionsData[sectionName]          
         if(sectionName === "Trades") {
+          // Process the trades data
           let generatedTrades = generateTrades(sectionName, headers, values)          
           props.setTrades(generatedTrades)
         } else {               
+          // Process the other sections data
           const headerSectionNames = headers.slice(2, headers.length)      
           const camelCasedSectionName = toCamelCase(sectionName)
           let sectionParsedData = []
@@ -143,12 +143,12 @@ function Parser(props) {
           result[camelCasedSectionName] = sectionParsedData
         }
       });
-
+      debugger
       props.setTotals(totals)
-      props.setResult(result);
+      props.setSectionsData(result);
     } catch (err) {
       setError('Error parsing CSV file: ' + err.message);
-      props.setResult(null);
+      props.setSectionsData(null);
     } finally {
       setIsLoading(false);
     }
@@ -156,7 +156,7 @@ function Parser(props) {
 
   const handleError = (error) => {
     setError('Error reading file: ' + error);
-    props.setResult(null);
+    props.setSectionsData(null);
     setIsLoading(false);
   };
 
