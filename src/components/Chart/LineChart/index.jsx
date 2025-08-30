@@ -1,6 +1,6 @@
 import { ResponsiveLine } from '@nivo/line';
 
-function DividendLineChart(props) {
+function LineChartComponent(props) {
   return (
     <div style={{ height: '400px', width: '100%', marginTop: '20px' }}>
       <ResponsiveLine
@@ -79,4 +79,4 @@ function DividendLineChart(props) {
     </div>)
 }
 
-export default DividendLineChart;
+export default LineChartComponent;

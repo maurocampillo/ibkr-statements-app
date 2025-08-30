@@ -1,0 +1,337 @@
+/* DividendChartComponent Styles */
+.dividend-chart-component {
+  margin: 20px 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Controls Section */
+.dividend-chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dividend-chart-button {
+  background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dividend-chart-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dividend-chart-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.dividend-chart-close-button {
+  background: #ff4757;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dividend-chart-close-button:hover {
+  background: #ff3742;
+  transform: scale(1.1);
+}
+
+/* Stats Preview */
+.dividend-stats-preview {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  border: 1px solid #dee2e6;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* Error Handling */
+.dividend-chart-error {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  color: #c33;
+}
+
+.dividend-chart-error p {
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+.error-dismiss-button {
+  background: #ff4757;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.error-dismiss-button:hover {
+  background: #ff3742;
+}
+
+/* Chart Container */
+.dividend-chart-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin: 16px 0;
+  border: 1px solid #e1e8ed;
+}
+
+.dividend-chart-header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f1f3f4;
+}
+
+.dividend-chart-header h3 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.dividend-chart-header p {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dividend-chart-wrapper {
+  margin: 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.dividend-chart-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f3f4;
+}
+
+.chart-insights {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.insight-item {
+  font-size: 13px;
+  color: #555;
+  text-align: center;
+}
+
+.insight-item strong {
+  color: #2c3e50;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.dividend-chart-footer small {
+  display: block;
+  text-align: center;
+  color: #95a5a6;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* Loading Animation */
+.dividend-chart-button:disabled::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animation for chart appearance */
+.dividend-chart-container {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stats preview animation */
+.dividend-stats-preview {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dividend-chart-component {
+    margin: 16px 0;
+  }
+  
+  .dividend-chart-container {
+    padding: 16px;
+    margin: 12px 0;
+  }
+  
+  .dividend-chart-header h3 {
+    font-size: 20px;
+  }
+  
+  .dividend-chart-button {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+  
+  .dividend-stats-preview {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    padding: 12px;
+  }
+  
+  .chart-insights {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dividend-chart-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .dividend-chart-button {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .dividend-chart-close-button {
+    align-self: flex-end;
+    margin-top: 8px;
+  }
+  
+  .dividend-stats-preview {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .chart-insights {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* Focus states for accessibility */
+.dividend-chart-button:focus,
+.dividend-chart-close-button:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .dividend-chart-button {
+    border: 2px solid currentColor;
+  }
+  
+  .dividend-stats-preview {
+    border: 2px solid #000;
+  }
+}
+
+/* Hover effects for stats */
+.stat-item:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}
+
+.stat-item:hover .stat-value {
+  color: #17a2b8;
+}
+
+/* Loading state for button */
+.dividend-chart-button:disabled {
+  position: relative;
+}

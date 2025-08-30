@@ -1,4 +1,4 @@
-import utils from '../../utils/parsing';
+import utils from '../../../utils/parsing';
 import _ from 'lodash';
 
 // Format data for Nivo Sankey chart
