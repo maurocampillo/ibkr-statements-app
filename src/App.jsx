@@ -7,6 +7,11 @@ import DividendLineChart from './components/Chart/DividendLineChart';
 import SankeyChart from './components/Chart/SankeyChart';
 import CalendarChart from './components/Chart/CalendarChart';
 import { handleDividendsClick } from './components/ChartHandler/DividendChartHandler.jsx';
+import { 
+  handleRealizedGainsClick, 
+  handleRealizedGainsBySymbolClick, 
+  handleRealizedGainsByCategoryClick 
+} from './components/ChartHandler/RealizedGainsHandler.jsx';
 import './App.css';
 import _ from 'lodash';
 
@@ -16,100 +21,6 @@ function App() {
   const [totals, setTotals] = useState(null);
   const [showChart, setShowChart] = useState(undefined)
   const [chartData, setChartData] = useState([]);
-
-  // Format data for Nivo Line chart
-  const formatRealizedGainsDataForSankeyChart = (data) => {
-    return {
-      "nodes": [
-        {
-          "id": "interests",
-          "nodeColor": "hsl(56, 70%, 50%)"
-        },
-        {
-          "id": "dividends",
-          "nodeColor": "hsl(124, 70%, 50%)"
-        },
-        {
-          "id": "realizedGainsFromTrades",
-          "nodeColor": "hsl(356, 70%, 50%)"
-        },
-        {
-          "id": "total",
-          "nodeColor": "hsl(255, 70%, 50%)"
-        },
-      ],
-      "links": [
-        {
-          "source": "interests",
-          "target": "total",
-          "value":  parseFloat(data.interest),
-        },
-        {
-          "source": "dividends",
-          "target": "total",
-          "value": parseFloat(data.dividends),
-        },
-        {
-          "source": "realizedGainsFromTrades",
-          "target": "total",
-          "value":  parseFloat(data.realizedUnrealizedPerformanceSummary.total.realizedTotal),
-        },
-      ]
-    }
-  };
-
-  const formatRealizedGainsDataForSankeyChartBySymbol = () => {
-    const data = utils.computeRealizedGainsForSankey(sectionsData)    
-    const arrayForSankey = _.sortBy(Object.values(data), ["symbol"])
-    const nodes = arrayForSankey.map((d) => {
-      return { "id": d.symbol }
-    })
-    const links = arrayForSankey.map((d) => {
-      return {"source": d.symbol, "value": d.total, "target": "total" }
-    })
-    return {
-      "nodes": nodes.concat({ "id": "total" }),
-      "links": links,
-    }
-  }
-
-  const formatRealizedGainsDataForSankeyChartByCategory = () => {
-    const {realizedGains, dividends, total} = utils.computeRealizedGainsByCategoryForSankey(sectionsData)
-    
-    const realizedGainsArrayForSankey = _.sortBy(Object.values(realizedGains), ["symbol"])
-    
-    const dividendsArrayForSankey = _.sortBy(Object.values(dividends), ["symbol"])
-    
-    const realizedGainsNodes = realizedGainsArrayForSankey.map((d) => {
-      return { "id": d.symbol }
-    }).concat({ "id": "realizedGains" })
-    
-    const realizedNodes = dividendsArrayForSankey.map((d) => {
-      return { "id": d.symbol }
-    }).concat({ "id": "dividends" })
-    
-    const totalNodes = [ { "id": "total" } ]
-
-    
-    const realizedGainsLinks = realizedGainsArrayForSankey.map((d) => {
-      return {"source": d.symbol, "value": d.total, "target": "realizedGains" }
-    })
-    const dividendsLinks = dividendsArrayForSankey.map((d) => {
-      return {"source": d.symbol, "value": d.total, "target": "dividends" }
-    })
-    
-    const totalLinks = [ 
-        {"source": "realizedGains", "value": Object.values(realizedGains).reduce((a,b) => a + b.total, 0), "target": "total" },
-        {"source": "dividends", "value": Object.values(dividends).reduce((a,b) => a + b.total, 0), "target": "total" },
-    ]
-    
-    const res = { 
-      "nodes": realizedGainsNodes.concat(realizedNodes).concat(totalNodes),
-      "links": realizedGainsLinks.concat(dividendsLinks).concat(totalLinks),
-    }
-
-    return res
-  }
 
   const formatCalendarChartData = (trades, dividends) => {
     if (!trades || !trades.length) {
@@ -159,26 +70,6 @@ function App() {
     return result;
   }
 
-
-
-  const handleRealizedGainsClick = () => {
-    const data = formatRealizedGainsDataForSankeyChart(totals)
-    setChartData(data);
-    setShowChart("realizedGainsSankeyCart");
-  };
-
-  const handleRealizedGainsBySymbolClick = () => {
-    const data = formatRealizedGainsDataForSankeyChartBySymbol(totals)
-    setChartData(data);
-    setShowChart("realizedGainsSankeyCartBySymbol");
-  }
-
-  const handleRealizedGainsByCategoryClick = () => {
-    const data = formatRealizedGainsDataForSankeyChartByCategory(totals)
-    setChartData(data);
-    setShowChart("realizedGainsSankeyCartByCategory");
-  }
-
   const handleCalendarChartClick = () => {
     const data = formatCalendarChartData(trades, sectionsData.dividends)
     setChartData(data);
@@ -192,9 +83,9 @@ function App() {
       <Parser setSectionsData={setSectionsData} setTotals={setTotals} setTrades={setTrades} />
 
       <button onClick={() => handleDividendsClick(sectionsData, setChartData, setShowChart)}>Dividends</button>
-      <button onClick={handleRealizedGainsClick}>Realized Gains</button>
-      <button onClick={handleRealizedGainsBySymbolClick}>Realized Gains by Symbol</button>
-      <button onClick={handleRealizedGainsByCategoryClick}>Realized Gains by Category / Symbol</button>
+      <button onClick={() => handleRealizedGainsClick(totals, setChartData, setShowChart)}>Realized Gains</button>
+      <button onClick={() => handleRealizedGainsBySymbolClick(sectionsData, setChartData, setShowChart)}>Realized Gains by Symbol</button>
+      <button onClick={() => handleRealizedGainsByCategoryClick(sectionsData, setChartData, setShowChart)}>Realized Gains by Category / Symbol</button>
       <button onClick={handleCalendarChartClick}>Calendar Chart</button>
 
       {showChart === "dividendsLineChart" && (
