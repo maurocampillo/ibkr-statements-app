@@ -58,7 +58,7 @@ const formatRealizedGainsDataForSankeyChartBySymbol = (sectionsData) => {
 }
 
 const formatRealizedGainsDataForSankeyChartByCategory = (sectionsData) => {
-  const {realizedGains, dividends, total} = utils.computeRealizedGainsByCategoryForSankey(sectionsData)
+  const {realizedGains, dividends} = utils.computeRealizedGainsByCategoryForSankey(sectionsData)
   
   const realizedGainsArrayForSankey = _.sortBy(Object.values(realizedGains), ["symbol"])
   

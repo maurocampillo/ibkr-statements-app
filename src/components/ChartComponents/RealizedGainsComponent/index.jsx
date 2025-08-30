@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import SankeyChart from '../../Chart/SankeyChart';
+import Autocomplete from './Autocomplete';
 import { 
   formatRealizedGainsDataForSankeyChart,
   formatRealizedGainsDataForSankeyChartBySymbol,
@@ -20,8 +21,9 @@ const RealizedGainsComponent = ({
   const [chartData, setChartData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedSources, setSelectedSources] = useState([]);
 
-  const chartTypes = [
+    const chartTypes = [
     {
       id: "overview",
       label: "Realized Gains Overview",
@@ -30,7 +32,7 @@ const RealizedGainsComponent = ({
       requiredData: totals
     },
     {
-      id: "bySymbol", 
+      id: "bySymbol",
       label: "Realized Gains by Symbol",
       description: "Performance breakdown by individual symbols",
       handler: () => formatRealizedGainsDataForSankeyChartBySymbol(sectionsData),
@@ -44,6 +46,44 @@ const RealizedGainsComponent = ({
       requiredData: sectionsData
     }
   ];
+
+  // Extract all available sources from the current chart data
+  const availableSources = useMemo(() => {
+    if (!chartData?.links) return [];
+    const sources = [...new Set(chartData.links.map(link => link.source))];
+    return sources.sort();
+  }, [chartData]);
+
+  // Create filtered chart data based on selected sources
+  const filteredChartData = useMemo(() => {
+    if (!chartData || selectedSources.length === 0) {
+      return chartData;
+    }
+
+    const filteredLinks = chartData.links.filter(link => 
+      selectedSources.includes(link.source)
+    );
+
+    // Get all nodes that are referenced in the filtered links
+    const referencedNodeIds = new Set();
+    filteredLinks.forEach(link => {
+      referencedNodeIds.add(link.source);
+      referencedNodeIds.add(link.target);
+    });
+
+    const filteredNodes = chartData.nodes.filter(node => 
+      referencedNodeIds.has(node.id)
+    );
+
+    return {
+      nodes: filteredNodes,
+      links: filteredLinks
+    };
+  }, [chartData, selectedSources]);
+
+  const handleSourceSelectionChange = (newSelection) => {
+    setSelectedSources(newSelection);
+  };
 
   const handleChartClick = async (chartType) => {
     try {
@@ -60,9 +100,10 @@ const RealizedGainsComponent = ({
       }
 
       const data = chart.handler();
-      debugger
       setChartData(data);
       setActiveChart(chartType);
+      // Reset filter when switching chart types
+      setSelectedSources([]);
     } catch (err) {
       setError(err.message);
       console.error('Realized Gains Chart Error:', err);
@@ -126,8 +167,25 @@ const RealizedGainsComponent = ({
             <p>{getActiveChartInfo()?.description}</p>
           </div>
           
+          {availableSources.length > 0 && (
+            <div className="realized-gains-filter-section">
+              <Autocomplete
+                options={availableSources}
+                selectedValues={selectedSources}
+                onSelectionChange={handleSourceSelectionChange}
+                placeholder="Filter by source..."
+                className="realized-gains-autocomplete"
+                maxHeight={200}
+                showSelectAll={true}
+                showClearAll={true}
+                noResultsText="No sources found matching"
+                searchIconText="🔍"
+              />
+            </div>
+          )}
+          
           <div className="realized-gains-chart-wrapper">
-            <SankeyChart chartData={chartData} />
+            <SankeyChart chartData={filteredChartData} />
           </div>
           
           <div className="realized-gains-footer">
