@@ -6,6 +6,7 @@ import utils from './utils/parsing';
 import DividendLineChart from './components/Chart/DividendLineChart';
 import SankeyChart from './components/Chart/SankeyChart';
 import CalendarChart from './components/Chart/CalendarChart';
+import { handleDividendsClick } from './components/ChartHandler/DividendChartHandler.jsx';
 import './App.css';
 import _ from 'lodash';
 
@@ -15,28 +16,6 @@ function App() {
   const [totals, setTotals] = useState(null);
   const [showChart, setShowChart] = useState(undefined)
   const [chartData, setChartData] = useState([]);
-
-  // Format data for Nivo Line chart, TODO: Move to utils
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-        month: 'short',
-        year: 'numeric'
-      })
-  }
-
-  const formatDividendDataForLineChart = (data) => {
-    let groupedData = Object.groupBy(data, (d) => formatDate(d.date))
-    const lineData = {
-      id: 'Dividends',
-      data: Object.keys(groupedData).map(keyDate => ({
-        x: keyDate, // Date for x-axis
-        y: groupedData[keyDate].map((e) => parseFloat(e.amount)).reduce((a,b) => a + b, 0),
-        id: formatDate(keyDate), // Date for x-axis
-      })).sort((a, b) => new Date(a.x) - new Date(b.x))
-    };
-    console.log("lineData", lineData)
-    return [lineData];
-  };
 
   // Format data for Nivo Line chart
   const formatRealizedGainsDataForSankeyChart = (data) => {
@@ -180,11 +159,7 @@ function App() {
     return result;
   }
 
-  const handleDividendsClick = () => {
-    const data = formatDividendDataForLineChart(sectionsData.dividends)
-    setChartData(data);
-    setShowChart("dividendsLineChart");
-  };
+
 
   const handleRealizedGainsClick = () => {
     const data = formatRealizedGainsDataForSankeyChart(totals)
@@ -216,7 +191,7 @@ function App() {
       
       <Parser setSectionsData={setSectionsData} setTotals={setTotals} setTrades={setTrades} />
 
-      <button onClick={handleDividendsClick}>Dividends</button>
+      <button onClick={() => handleDividendsClick(sectionsData, setChartData, setShowChart)}>Dividends</button>
       <button onClick={handleRealizedGainsClick}>Realized Gains</button>
       <button onClick={handleRealizedGainsBySymbolClick}>Realized Gains by Symbol</button>
       <button onClick={handleRealizedGainsByCategoryClick}>Realized Gains by Category / Symbol</button>
