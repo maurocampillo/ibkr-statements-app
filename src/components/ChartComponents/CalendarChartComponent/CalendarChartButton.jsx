@@ -1,0 +1,123 @@
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
+import PropTypes from 'prop-types';
+import { formatCalendarChartData } from './CalendarChartHandler';
+import './CalendarChartComponent.css';
+
+const CalendarChartButton = forwardRef(({
+  dateData,
+  sectionsData,
+  buttonText = "Calendar Chart",
+  defaultBoxColor = "#f5f5f5",
+  boxBorderColor = "#cccccc",
+  rowCount = 3,
+  className = "",
+  onChartDataReady,
+  onError
+}, ref) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [showChart, setShowChart] = useState(false);
+
+  // Expose reset function to parent component
+  useImperativeHandle(ref, () => ({
+    resetButton: () => {
+      setShowChart(false);
+      setIsLoading(false);
+    }
+  }));
+
+  const handleCalendarChartClick = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Toggle behavior: if chart is already showing, hide it
+      if (showChart) {
+        setShowChart(false);
+        if (onChartDataReady) {
+          onChartDataReady(null); // Clear the chart
+        }
+        return;
+      }
+      
+      if (!dateData || !sectionsData?.dividends) {
+        throw new Error('Missing required data: dateData or dividends');
+      }
+
+      const data = formatCalendarChartData(dateData, sectionsData.dividends);
+      setShowChart(true);
+      
+      // Pass the chart data to parent component
+      if (onChartDataReady) {
+        onChartDataReady({
+          type: 'calendar',
+          data: data,
+          title: 'Monthly Performance Overview',
+          description: 'Combined realized gains from trades and dividend income by month',
+          config: {
+            defaultBoxColor,
+            boxBorderColor,
+            rowCount
+          }
+        });
+      }
+    } catch (err) {
+      if (onError) {
+        onError(err.message);
+      }
+      console.error('Calendar Chart Error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const hasData = dateData && sectionsData?.dividends;
+
+  return (
+    <div className={`calendar-chart-button-component ${className}`}>
+      <div className="calendar-chart-controls">
+        <button 
+          onClick={handleCalendarChartClick}
+          disabled={isLoading || !hasData}
+          className={`calendar-chart-button ${showChart ? 'active' : ''} ${!hasData ? 'disabled' : ''}`}
+          title={hasData ? 'Click to view monthly performance calendar' : 'Missing required data (trades or dividends)'}
+        >
+          <span className="button-icon">📅</span>
+          <div className="button-content">
+            <span className="button-label">
+              {isLoading ? 'Loading...' : buttonText}
+            </span>
+          </div>
+          {showChart && (
+            <span className="active-indicator">✓</span>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+});
+
+CalendarChartButton.propTypes = {
+  dateData: PropTypes.array,
+  sectionsData: PropTypes.shape({
+    dividends: PropTypes.array
+  }),
+  buttonText: PropTypes.string,
+  defaultBoxColor: PropTypes.string,
+  boxBorderColor: PropTypes.string,
+  rowCount: PropTypes.oneOf([1, 2, 3, 4, 6, 12]),
+  className: PropTypes.string,
+  onChartDataReady: PropTypes.func,
+  onError: PropTypes.func
+};
+
+CalendarChartButton.defaultProps = {
+  buttonText: "Calendar Chart",
+  defaultBoxColor: "#f5f5f5",
+  boxBorderColor: "#cccccc",
+  rowCount: 3,
+  className: "",
+  onChartDataReady: () => {},
+  onError: () => {}
+};
+
+export default CalendarChartButton;

@@ -1,0 +1,49 @@
+/* Sankey Chart Styles */
+.sankey-chart-container {
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Sankey Chart Wrapper */
+.sankey-chart-wrapper {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sankey-chart-wrapper {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sankey-chart-container {
+    margin: 12px 0;
+  }
+}
+
+/* Animation for chart container */
+.sankey-chart-container {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .sankey-chart-wrapper {
+    border: 2px solid #000;
+  }
+}
