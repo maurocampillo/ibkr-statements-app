@@ -50,39 +50,57 @@ const RealizedGainsComponent = ({
   ];
 
 
+  // Helper function to create aggregated nodes and links with totals
+  const createAggregatedChartData = (nodes, links) => {
+    const realizedGainsTotal = _.sumBy(
+      links.filter(e => e.target === "realizedGains"), 
+      'value'
+    );
+    const dividendsTotal = _.sumBy(
+      links.filter(e => e.target === "dividends"), 
+      'value'
+    );
+    
+    const aggregatedNodes = nodes.concat([
+      { id: "realizedGains", name: "Realized Gains" }, 
+      { id: "dividends", name: "Dividends" }, 
+      { id: "total", name: "Total" }
+    ]);
+    
+    const aggregatedLinks = links.concat([
+      { source: "realizedGains", target: "total", value: realizedGainsTotal }, 
+      { source: "dividends", target: "total", value: dividendsTotal }
+    ]);
+    
+    return {
+      nodes: aggregatedNodes,
+      links: aggregatedLinks
+    };
+  };
+
   // Extract all available sources from the current chart data
   const availableSources = useMemo(() => {
     if (!chartData?.links) return [];
     const sources = [...new Set(chartData.links.map(link => link.source))];
-    return sources.sort();
+    return sources.sort().filter(source => source !== "realizedGains" && source !== "dividends" && source !== "total");
   }, [chartData]);
 
   // Create filtered chart data based on selected sources
   const filteredChartData = useMemo(() => {
     if (!chartData || !chartData.links) {
       return chartData;
-    } else if (chartData && selectedSources.length === 0) {
+    } 
+    
+    if (selectedSources.length === 0) {
+      // Show top 10 sources when no specific selection is made
       const links = getTopSourcesByAggregatedValue(chartData.links, 10);
       const symbols = links.map(link => link.source);
+      const nodes = chartData.nodes.filter(node => symbols.includes(node.id));
       
-      const nodes = chartData.nodes.filter(node => symbols.includes(node.id));    
-      // Calculate and use the sums
-      const realizedGainsTotal = _.sumBy(
-        links.filter(e => e.target === "realizedGains"), 
-        'value'
-      );
-      const dividendsTotal = _.sumBy(
-        links.filter(e => e.target === "dividends"), 
-        'value'
-      );
-      const aggregatedNodes = nodes.concat([{id: "realizedGains", name: "Realized Gains"}, {id: "dividends", name: "Dividends"}, {id: "total", name: "Total"}]);
-      const aggregatedLinks = links.concat([{source: "realizedGains", target: "total", value: realizedGainsTotal}, {source: "dividends", target: "total", value: dividendsTotal}]);
-      return {
-        nodes: aggregatedNodes,
-        links: aggregatedLinks 
-      };
-    }    
+      return createAggregatedChartData(nodes, links);
+    }
 
+    // Filter by selected sources
     const filteredLinks = chartData.links.filter(link => 
       selectedSources.includes(link.source)
     );
@@ -97,22 +115,8 @@ const RealizedGainsComponent = ({
     const filteredNodes = chartData.nodes.filter(node => 
       referencedNodeIds.has(node.id)
     );
-
-    const realizedGainsTotal = _.sumBy(
-      filteredLinks.filter(e => e.target === "realizedGains"), 
-      'value'
-    );
-    const dividendsTotal = _.sumBy(
-      filteredLinks.filter(e => e.target === "dividends"), 
-      'value'
-    );
-    const aggregatedNodes = filteredNodes.concat([{id: "realizedGains", name: "Realized Gains"}, {id: "dividends", name: "Dividends"}, {id: "total", name: "Total"}]);
-    const aggregatedLinks = filteredLinks.concat([{source: "realizedGains", target: "total", value: realizedGainsTotal}, {source: "dividends", target: "total", value: dividendsTotal}]);
     
-    return {
-      nodes: aggregatedNodes,
-      links: aggregatedLinks
-    };
+    return createAggregatedChartData(filteredNodes, filteredLinks);
   }, [chartData, selectedSources]);
 
   const handleSourceSelectionChange = (newSelection) => {
