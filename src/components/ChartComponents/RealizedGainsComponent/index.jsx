@@ -83,8 +83,6 @@ const RealizedGainsComponent = ({
     const aggregatedNodes = _.uniqBy(nodes.concat([
       { id: "total"}
     ]), 'id');
-    console.log(aggregatedNodes);
-    console.log(links);
     return {
       nodes: aggregatedNodes,
       links: links
@@ -95,58 +93,86 @@ const RealizedGainsComponent = ({
   const availableSources = useMemo(() => {
     if (!chartData?.links) return [];
     const sources = [...new Set(chartData.links.map(link => link.source))];
-    return sources.sort().filter(source => source !== "realizedGains" && source !== "dividends" && source !== "total");
+    switch(activeChart) {
+      case "byCategory":
+        return sources.sort().filter(source => source !== "realizedGains" && source !== "dividends" && source !== "total");
+      case "bySymbol":
+        return sources.sort().filter(source => source !== "total");
+      case "overview":
+        return sources.sort().filter(source => source !== "total");
+      default:
+        return sources.sort();
+    }
   }, [chartData]);
 
-  // Create filtered chart data based on selected sources
-  const filteredChartData = useMemo(() => {
-    if (!chartData || !chartData.links) {
-      return chartData;
-    } 
-        
-    if (selectedSources.length === 0 && activeChart === "byCategory") {
-      // Show top 10 sources when no specific selection is made
-      const links = getTopSourcesByAggregatedValue(chartData.links, 10);
-      const symbols = links.map(link => link.source);
-      const nodes = chartData.nodes.filter(node => symbols.includes(node.id));
-      
-      return createAggregatedChartDataByCategory(nodes, links);
+    // Chart type strategies for handling different data processing needs
+  const chartStrategies = {
+    byCategory: {
+      getDefaultData: (chartData) => {
+        // Show top 10 sources by aggregated value for category view
+        const links = getTopSourcesByAggregatedValue(chartData.links, 10);
+        const symbols = links.map(link => link.source);
+        const nodes = chartData.nodes.filter(node => symbols.includes(node.id));
+        return { nodes, links };
+      },
+      processData: (nodes, links) => createAggregatedChartDataByCategory(nodes, links)
+    },
+    bySymbol: {
+      getDefaultData: (chartData) => {
+        // Show top 10 sources by individual value for symbol view
+        const links = _.sortBy(chartData.links, 'value').reverse().slice(0, 10);
+        const symbols = links.map(link => link.source);
+        const nodes = chartData.nodes.filter(node => symbols.includes(node.id));
+        return { nodes, links };
+      },
+      processData: (nodes, links) => createAggregatedChartDataBySymbol(nodes, links)
+    },
+    overview: {
+      getDefaultData: (chartData) => {
+        // For overview, use all data
+        return { nodes: chartData.nodes, links: chartData.links };
+      },
+      processData: (nodes, links) => createAggregatedChartDataBySymbol(nodes, links)
     }
-    
-    if (selectedSources.length === 0 && activeChart === "bySymbol") {      
-      const links = _.sortBy(chartData.links, 'value').reverse().slice(0, 10);
-      const symbols = links.map(link => link.source);
-      const nodes = chartData.nodes.filter(node => symbols.includes(node.id));
+  };
 
-      return createAggregatedChartDataBySymbol(nodes, links);
-    }
-
-    // Filter by selected sources
-    const filteredLinks = chartData.links.filter(link => 
-      selectedSources.includes(link.source)
-    );
-
-    // Get all nodes that are referenced in the filtered links
+  // Helper function to get filtered nodes from links
+  const getFilteredNodes = (chartData, links) => {
     const referencedNodeIds = new Set();
-    filteredLinks.forEach(link => {
+    links.forEach(link => {
       referencedNodeIds.add(link.source);
       referencedNodeIds.add(link.target);
     });
+    return chartData.nodes.filter(node => referencedNodeIds.has(node.id));
+  };
 
-    const filteredNodes = chartData.nodes.filter(node => 
-      referencedNodeIds.has(node.id)
-    );
-    
-    // TODO: Improve this mess
-
-    if(activeChart === "byCategory") {
-      return createAggregatedChartDataByCategory(filteredNodes, filteredLinks);
-    } else {
-      return createAggregatedChartDataBySymbol(filteredNodes, filteredLinks);
+  // Create filtered chart data based on selected sources and active chart type
+  const filteredChartData = useMemo(() => {
+    // Early return for invalid data
+    if (!chartData || !chartData.links || !activeChart) {
+      return chartData;
     }
 
-    return chartData;
-  }, [chartData, selectedSources]);
+    const strategy = chartStrategies[activeChart];
+    if (!strategy) {
+      console.warn(`Unknown chart type: ${activeChart}`);
+      return chartData;
+    }
+
+    // No sources selected - use default data for the chart type
+    if (selectedSources.length === 0) {
+      const { nodes, links } = strategy.getDefaultData(chartData);
+      return strategy.processData(nodes, links);
+    }
+
+    // Sources selected - filter data and process according to chart type
+    const filteredLinks = chartData.links.filter(link => 
+      selectedSources.includes(link.source)
+    );
+    const filteredNodes = getFilteredNodes(chartData, filteredLinks);
+    
+    return strategy.processData(filteredNodes, filteredLinks);
+  }, [chartData, selectedSources, activeChart]);
 
   const handleSourceSelectionChange = (newSelection) => {
     setSelectedSources(newSelection);
