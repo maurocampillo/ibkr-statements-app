@@ -29,6 +29,15 @@ const CalendarChartButton = forwardRef(({
     try {
       setIsLoading(true);
       
+      // Toggle behavior: if chart is already showing, hide it
+      if (showChart) {
+        setShowChart(false);
+        if (onChartDataReady) {
+          onChartDataReady(null); // Clear the chart
+        }
+        return;
+      }
+      
       if (!dateData || !sectionsData?.dividends) {
         throw new Error('Missing required data: dateData or dividends');
       }
@@ -60,13 +69,6 @@ const CalendarChartButton = forwardRef(({
     }
   };
 
-  const handleCloseChart = () => {
-    setShowChart(false);
-    if (onChartDataReady) {
-      onChartDataReady(null); // Clear the chart
-    }
-  };
-
 
   const hasData = dateData && sectionsData?.dividends;
 
@@ -84,27 +86,11 @@ const CalendarChartButton = forwardRef(({
             <span className="button-label">
               {isLoading ? 'Loading...' : buttonText}
             </span>
-            {hasData && (
-              <span className="button-description">
-                View monthly performance calendar
-              </span>
-            )}
           </div>
           {showChart && (
             <span className="active-indicator">✓</span>
           )}
         </button>
-        
-        {showChart && (
-          <button 
-            onClick={handleCloseChart}
-            className="calendar-chart-close-button"
-            aria-label="Close calendar chart"
-            title="Close calendar chart"
-          >
-            ×
-          </button>
-        )}
       </div>
     </div>
   );

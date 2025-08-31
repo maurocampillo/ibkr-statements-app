@@ -25,6 +25,15 @@ const DividendChartButton = forwardRef(({
     try {
       setIsLoading(true);
       
+      // Toggle behavior: if chart is already showing, hide it
+      if (showChart) {
+        setShowChart(false);
+        if (onChartDataReady) {
+          onChartDataReady(null); // Clear the chart
+        }
+        return;
+      }
+      
       if (!sectionsData?.dividends || !Array.isArray(sectionsData.dividends) || sectionsData.dividends.length === 0) {
         throw new Error('Missing or empty dividend data');
       }
@@ -51,13 +60,6 @@ const DividendChartButton = forwardRef(({
     }
   };
 
-  const handleCloseChart = () => {
-    setShowChart(false);
-    if (onChartDataReady) {
-      onChartDataReady(null); // Clear the chart
-    }
-  };
-
   const hasData = sectionsData?.dividends?.length > 0;
 
   return (
@@ -74,27 +76,11 @@ const DividendChartButton = forwardRef(({
             <span className="button-label">
               {isLoading ? 'Loading...' : buttonText}
             </span>
-            {hasData && (
-              <span className="button-description">
-                View dividend performance over time
-              </span>
-            )}
           </div>
           {showChart && (
             <span className="active-indicator">✓</span>
           )}
         </button>
-        
-        {showChart && (
-          <button 
-            onClick={handleCloseChart}
-            className="dividend-chart-close-button"
-            aria-label="Close dividend chart"
-            title="Close dividend chart"
-          >
-            ×
-          </button>
-        )}
       </div>
     </div>
   );

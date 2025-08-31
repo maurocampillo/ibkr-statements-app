@@ -62,6 +62,16 @@ const RealizedGainsButtonsGroup = forwardRef(({
     try {
       setIsLoading(true);
       
+      // Toggle behavior: if the same chart is already active, hide it
+      if (activeChart === chartType) {
+        setActiveChart(null);
+        setChartData({});
+        if (onChartDataReady) {
+          onChartDataReady(null); // Clear the chart
+        }
+        return;
+      }
+      
       const chart = chartTypes.find(c => c.id === chartType);
       if (!chart) {
         throw new Error(`Unknown chart type: ${chartType}`);
@@ -96,17 +106,6 @@ const RealizedGainsButtonsGroup = forwardRef(({
     }
   };
 
-  const handleCloseChart = () => {
-    setActiveChart(null);
-    if (onChartDataReady) {
-      onChartDataReady(null); // Clear the chart
-    }
-  };
-
-
-
-
-  const hasAnyData = totals || sectionsData;
 
   return (
     <div className={`realized-gains-buttons-group ${className}`}>
@@ -125,9 +124,6 @@ const RealizedGainsButtonsGroup = forwardRef(({
                 <span className="button-label">
                   {isLoading && activeChart === chart.id ? 'Loading...' : chart.label}
                 </span>
-                <span className="button-description">
-                  {chart.description}
-                </span>
               </div>
               {activeChart === chart.id && (
                 <span className="active-indicator">✓</span>
@@ -135,25 +131,7 @@ const RealizedGainsButtonsGroup = forwardRef(({
             </button>
           ))}
         </div>
-        
-        {activeChart && (
-          <button 
-            onClick={handleCloseChart}
-            className="realized-gains-close-button"
-            aria-label="Close realized gains chart"
-            title="Close realized gains chart"
-          >
-            ×
-          </button>
-        )}
       </div>
-
-      {!hasAnyData && (
-        <div className="no-data-message">
-          <div className="no-data-icon">📊</div>
-          <p>No realized gains data available. Upload a CSV file with trading and dividend information to view analysis.</p>
-        </div>
-      )}
     </div>
   );
 });

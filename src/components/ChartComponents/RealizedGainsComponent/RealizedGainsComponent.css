@@ -333,8 +333,9 @@
     align-items: stretch;
   }
   
-  .realized-gains-buttons {
-    flex-direction: column;
+  .realized-gains-buttons,
+  .realized-gains-buttons-group .realized-gains-controls .realized-gains-buttons {
+    flex-direction: column !important;
     gap: 8px;
   }
   
@@ -421,10 +422,11 @@
   border-color: #ff6b6b;
 }
 
-.realized-gains-buttons-group .realized-gains-buttons {
+.realized-gains-buttons-group .realized-gains-controls .realized-gains-buttons {
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  flex-direction: row !important;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 /* Stats Preview for Buttons Group */

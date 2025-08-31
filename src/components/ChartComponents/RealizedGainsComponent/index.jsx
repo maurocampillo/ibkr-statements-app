@@ -188,8 +188,18 @@ const RealizedGainsComponent = ({
     return strategy.processData(filteredNodes, filteredLinks);
   }, [chartData, selectedSources, activeChart]);
 
+  // Show no-data message if there's no chart data
   if (!chartData || !filteredChartData) {
-    return null;
+    return (
+      <div className={`realized-gains-component ${className}`}>
+        <div className="realized-gains-container">
+          <div className="no-data-message">
+            <div className="no-data-icon">📊</div>
+            <p>No realized gains data available. Upload a CSV file with trading and dividend information to view analysis.</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
