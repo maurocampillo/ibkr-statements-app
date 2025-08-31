@@ -132,7 +132,7 @@ const getTopSourcesByAggregatedValue = (links, topN = 10) => {
   );
 
   // Group by source and calculate total value for each source
-  const sourceAggregates = {};
+  const sourceAggregates = {};  
   sourceLinks.forEach(link => {
     if (!sourceAggregates[link.source]) {
       sourceAggregates[link.source] = {

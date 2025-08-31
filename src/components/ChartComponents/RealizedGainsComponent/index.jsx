@@ -51,7 +51,7 @@ const RealizedGainsComponent = ({
 
 
   // Helper function to create aggregated nodes and links with totals
-  const createAggregatedChartData = (nodes, links) => {
+  const createAggregatedChartDataByCategory = (nodes, links) => {
     const realizedGainsTotal = _.sumBy(
       links.filter(e => e.target === "realizedGains"), 
       'value'
@@ -71,10 +71,23 @@ const RealizedGainsComponent = ({
       { source: "realizedGains", target: "total", value: realizedGainsTotal }, 
       { source: "dividends", target: "total", value: dividendsTotal }
     ]);
-    debugger
+    
     return {
       nodes: aggregatedNodes,
       links: aggregatedLinks
+    };
+  };
+
+  // Helper function to create aggregated nodes and links with totals
+  const createAggregatedChartDataBySymbol = (nodes, links) => {
+    const aggregatedNodes = _.uniqBy(nodes.concat([
+      { id: "total"}
+    ]), 'id');
+    console.log(aggregatedNodes);
+    console.log(links);
+    return {
+      nodes: aggregatedNodes,
+      links: links
     };
   };
 
@@ -90,14 +103,22 @@ const RealizedGainsComponent = ({
     if (!chartData || !chartData.links) {
       return chartData;
     } 
-    
-    if (selectedSources.length === 0) {
+        
+    if (selectedSources.length === 0 && activeChart === "byCategory") {
       // Show top 10 sources when no specific selection is made
       const links = getTopSourcesByAggregatedValue(chartData.links, 10);
       const symbols = links.map(link => link.source);
       const nodes = chartData.nodes.filter(node => symbols.includes(node.id));
       
-      return createAggregatedChartData(nodes, links);
+      return createAggregatedChartDataByCategory(nodes, links);
+    }
+    
+    if (selectedSources.length === 0 && activeChart === "bySymbol") {      
+      const links = _.sortBy(chartData.links, 'value').reverse().slice(0, 10);
+      const symbols = links.map(link => link.source);
+      const nodes = chartData.nodes.filter(node => symbols.includes(node.id));
+
+      return createAggregatedChartDataBySymbol(nodes, links);
     }
 
     // Filter by selected sources
@@ -116,7 +137,15 @@ const RealizedGainsComponent = ({
       referencedNodeIds.has(node.id)
     );
     
-    return createAggregatedChartData(filteredNodes, filteredLinks);
+    // TODO: Improve this mess
+
+    if(activeChart === "byCategory") {
+      return createAggregatedChartDataByCategory(filteredNodes, filteredLinks);
+    } else {
+      return createAggregatedChartDataBySymbol(filteredNodes, filteredLinks);
+    }
+
+    return chartData;
   }, [chartData, selectedSources]);
 
   const handleSourceSelectionChange = (newSelection) => {
@@ -245,25 +274,7 @@ const RealizedGainsComponent = ({
             <SankeyChart chartData={filteredChartData} />
           </div>
           
-          <div className="realized-gains-footer">
-            <div className="chart-legend">
-              <div className="legend-item">
-                <span className="legend-color interests"></span>
-                <span>Interests</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-color dividends"></span>
-                <span>Dividends</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-color realized-gains"></span>
-                <span>Realized Gains</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-color total"></span>
-                <span>Total</span>
-              </div>
-            </div>
+          <div className="realized-gains-footer">            
             <small>Interactive Sankey diagram showing financial performance flows</small>
           </div>
         </div>
