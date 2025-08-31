@@ -321,6 +321,181 @@
   }
 }
 
+/* Dividend Chart Button Component Styles */
+.dividend-chart-button-component {
+  margin: 20px 0;
+}
+
+.dividend-chart-button-component .dividend-chart-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 2px solid #28a745;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dividend-chart-button-component .dividend-chart-button:hover:not(:disabled) {
+  border-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+}
+
+.dividend-chart-button-component .dividend-chart-button.active {
+  border-color: #28a745;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+.dividend-chart-button-component .dividend-chart-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f8f9fa;
+}
+
+.dividend-chart-button-component .dividend-chart-button.disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: #28a745;
+}
+
+.button-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.button-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.button-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.button-description {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+.active-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #28a745;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Stats Preview for Button Component */
+.dividend-chart-button-component .dividend-stats-preview {
+  margin-top: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stats-header {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.stats-header h4 {
+  margin: 0;
+  color: #495057;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.dividend-chart-button-component .stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.dividend-chart-button-component .stat-label {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.dividend-chart-button-component .stat-value {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* No Data Message */
+.no-data-message {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 12px;
+  border: 1px dashed #dee2e6;
+}
+
+.no-data-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
+.no-data-message p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Responsive Design for Button Component */
+@media (max-width: 768px) {
+  .dividend-chart-button-component .dividend-chart-button {
+    padding: 12px 16px;
+  }
+
+  .button-icon {
+    font-size: 20px;
+  }
+
+  .button-label {
+    font-size: 14px;
+  }
+
+  .button-description {
+    font-size: 12px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Hover effects for stats */
 .stat-item:hover {
   transform: translateY(-2px);

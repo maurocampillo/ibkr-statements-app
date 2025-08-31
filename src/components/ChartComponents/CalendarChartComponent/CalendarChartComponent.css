@@ -213,3 +213,80 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Calendar Chart Button Component Styles */
+.calendar-chart-button-component {
+  margin: 20px 0;
+}
+
+.calendar-chart-button-component .calendar-chart-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  overflow: hidden;
+}
+
+.calendar-chart-button-component .calendar-chart-button:hover:not(:disabled) {
+  border-color: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.calendar-chart-button-component .calendar-chart-button.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #e6f3ff 0%, #f0f4ff 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.calendar-chart-button-component .calendar-chart-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f8f9fa;
+}
+
+.calendar-chart-button-component .calendar-chart-button.disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: #667eea;
+}
+
+/* Stats Preview for Calendar Button Component */
+.calendar-chart-button-component .calendar-stats-preview {
+  margin-top: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-chart-button-component .stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.calendar-chart-button-component .stat-label {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.calendar-chart-button-component .stat-value {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 600;
+}

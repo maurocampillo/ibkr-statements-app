@@ -373,3 +373,153 @@
     border: 2px solid #000;
   }
 }
+
+/* Realized Gains Buttons Group Component Styles */
+.realized-gains-buttons-group {
+  margin: 20px 0;
+}
+
+.realized-gains-buttons-group .realized-gains-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 2px solid #ff6b6b;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+  max-width: 300px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.realized-gains-buttons-group .realized-gains-button:hover:not(:disabled) {
+  border-color: #ee5a24;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
+}
+
+.realized-gains-buttons-group .realized-gains-button.active {
+  border-color: #ff6b6b;
+  background: linear-gradient(135deg, #ffe6e6 0%, #fff0f0 100%);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+}
+
+.realized-gains-buttons-group .realized-gains-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f8f9fa;
+}
+
+.realized-gains-buttons-group .realized-gains-button.disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: #ff6b6b;
+}
+
+.realized-gains-buttons-group .realized-gains-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Stats Preview for Buttons Group */
+.realized-gains-buttons-group .realized-gains-stats-preview {
+  margin-top: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.realized-gains-buttons-group .stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.realized-gains-buttons-group .stat-label {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.realized-gains-buttons-group .stat-value {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Filter Section for Buttons Group */
+.realized-gains-buttons-group .realized-gains-filter-section {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.realized-gains-buttons-group .filter-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.realized-gains-buttons-group .filter-section-header h4 {
+  margin: 0;
+  color: #495057;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.realized-gains-buttons-group .top-sources-button {
+  background: linear-gradient(135deg, #4834d4 0%, #686de0 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.realized-gains-buttons-group .top-sources-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(72, 52, 212, 0.3);
+}
+
+/* Responsive Design for Buttons Group */
+@media (max-width: 768px) {
+  .realized-gains-buttons-group .realized-gains-button {
+    padding: 12px 16px;
+    max-width: 100%;
+  }
+
+  .button-icon {
+    font-size: 20px;
+  }
+
+  .button-label {
+    font-size: 14px;
+  }
+
+  .button-description {
+    font-size: 12px;
+  }
+
+  .realized-gains-buttons-group .filter-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
