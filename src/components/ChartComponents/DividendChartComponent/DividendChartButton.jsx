@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import { formatDividendDataForLineChart } from './DividendChartHandler';
 import './DividendChartComponent.css';
 
-const DividendChartButton = ({
+const DividendChartButton = forwardRef(({
   sectionsData,
   buttonText = "Dividends",
   className = "",
   onChartDataReady,
-  onError,
-  showStats = true
-}) => {
+  onError
+}, ref) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showChart, setShowChart] = useState(false);
+
+  // Expose reset function to parent component
+  useImperativeHandle(ref, () => ({
+    resetButton: () => {
+      setShowChart(false);
+      setIsLoading(false);
+    }
+  }));
 
   const handleDividendsClick = async () => {
     try {
@@ -51,28 +58,6 @@ const DividendChartButton = ({
     }
   };
 
-  const getDividendStats = () => {
-    if (!sectionsData?.dividends || !Array.isArray(sectionsData.dividends)) {
-      return null;
-    }
-
-    const dividends = sectionsData.dividends;
-    const totalAmount = dividends.reduce((sum, div) => sum + parseFloat(div.amount || 0), 0);
-    const uniqueSymbols = new Set(dividends.map(div => div.symbol)).size;
-    const dateRange = dividends.length > 0 ? {
-      start: new Date(Math.min(...dividends.map(div => new Date(div.date)))),
-      end: new Date(Math.max(...dividends.map(div => new Date(div.date))))
-    } : null;
-
-    return {
-      totalAmount,
-      count: dividends.length,
-      uniqueSymbols,
-      dateRange
-    };
-  };
-
-  const stats = getDividendStats();
   const hasData = sectionsData?.dividends?.length > 0;
 
   return (
@@ -111,48 +96,9 @@ const DividendChartButton = ({
           </button>
         )}
       </div>
-
-      {stats && showChart && showStats && (
-        <div className="dividend-stats-preview">
-          <div className="stats-header">
-            <h4>📊 Dividend Summary</h4>
-          </div>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <span className="stat-label">Total Amount:</span>
-              <span className="stat-value">
-                {stats.totalAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-              </span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Total Payments:</span>
-              <span className="stat-value">{stats.count}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Unique Symbols:</span>
-              <span className="stat-value">{stats.uniqueSymbols}</span>
-            </div>
-            {stats.dateRange && (
-              <div className="stat-item">
-                <span className="stat-label">Date Range:</span>
-                <span className="stat-value">
-                  {stats.dateRange.start.toLocaleDateString()} - {stats.dateRange.end.toLocaleDateString()}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {!hasData && (
-        <div className="no-data-message">
-          <div className="no-data-icon">📊</div>
-          <p>No dividend data available. Upload a CSV file with dividend information to view analysis.</p>
-        </div>
-      )}
     </div>
   );
-};
+});
 
 DividendChartButton.propTypes = {
   sectionsData: PropTypes.shape({
@@ -161,14 +107,12 @@ DividendChartButton.propTypes = {
   buttonText: PropTypes.string,
   className: PropTypes.string,
   onChartDataReady: PropTypes.func,
-  onError: PropTypes.func,
-  showStats: PropTypes.bool
+  onError: PropTypes.func
 };
 
 DividendChartButton.defaultProps = {
   buttonText: "Dividends",
   className: "",
-  showStats: true,
   onChartDataReady: () => {},
   onError: () => {}
 };

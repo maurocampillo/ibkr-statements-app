@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import { formatCalendarChartData } from './CalendarChartHandler';
 import './CalendarChartComponent.css';
 
-const CalendarChartButton = ({
+const CalendarChartButton = forwardRef(({
   dateData,
   sectionsData,
   buttonText = "Calendar Chart",
@@ -12,11 +12,18 @@ const CalendarChartButton = ({
   rowCount = 3,
   className = "",
   onChartDataReady,
-  onError,
-  showStats = true
-}) => {
+  onError
+}, ref) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showChart, setShowChart] = useState(false);
+
+  // Expose reset function to parent component
+  useImperativeHandle(ref, () => ({
+    resetButton: () => {
+      setShowChart(false);
+      setIsLoading(false);
+    }
+  }));
 
   const handleCalendarChartClick = async () => {
     try {
@@ -60,49 +67,7 @@ const CalendarChartButton = ({
     }
   };
 
-  const getCalendarStats = () => {
-    if (!dateData || !sectionsData?.dividends) {
-      return null;
-    }
 
-    const totalTrades = dateData.length;
-    const totalDividends = sectionsData.dividends.length;
-    
-    // Calculate total realized gains from trades
-    const totalRealizedGains = dateData.reduce((sum, trade) => {
-      const realizedPL = parseFloat(trade.realizedPL || 0);
-      return sum + realizedPL;
-    }, 0);
-
-    // Calculate total dividend income
-    const totalDividendIncome = sectionsData.dividends.reduce((sum, div) => {
-      return sum + parseFloat(div.amount || 0);
-    }, 0);
-
-    const totalValue = totalRealizedGains + totalDividendIncome;
-
-    // Get date range
-    const allDates = [
-      ...dateData.map(trade => new Date(trade.dateTime)),
-      ...sectionsData.dividends.map(div => new Date(div.date))
-    ].filter(date => !isNaN(date));
-
-    const dateRange = allDates.length > 0 ? {
-      start: new Date(Math.min(...allDates)),
-      end: new Date(Math.max(...allDates))
-    } : null;
-
-    return {
-      totalTrades,
-      totalDividends,
-      totalRealizedGains,
-      totalDividendIncome,
-      totalValue,
-      dateRange
-    };
-  };
-
-  const stats = getCalendarStats();
   const hasData = dateData && sectionsData?.dividends;
 
   return (
@@ -141,67 +106,9 @@ const CalendarChartButton = ({
           </button>
         )}
       </div>
-
-      {stats && showChart && showStats && (
-        <div className="calendar-stats-preview">
-          <div className="stats-header">
-            <h4>📊 Performance Summary</h4>
-          </div>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <span className="stat-label">Total Value:</span>
-              <span className="stat-value">
-                {stats.totalValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-              </span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Realized Gains:</span>
-              <span className="stat-value">
-                {stats.totalRealizedGains.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-              </span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Dividend Income:</span>
-              <span className="stat-value">
-                {stats.totalDividendIncome.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-              </span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Total Trades:</span>
-              <span className="stat-value">{stats.totalTrades}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Dividend Payments:</span>
-              <span className="stat-value">{stats.totalDividends}</span>
-            </div>
-            {stats.dateRange && (
-              <div className="stat-item">
-                <span className="stat-label">Date Range:</span>
-                <span className="stat-value">
-                  {stats.dateRange.start.toLocaleDateString()} - {stats.dateRange.end.toLocaleDateString()}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {!hasData && (
-        <div className="no-data-message">
-          <div className="no-data-icon">📅</div>
-          <p>
-            {!dateData && !sectionsData?.dividends 
-              ? 'No trade or dividend data available. Upload a CSV file to view the calendar chart.'
-              : !dateData 
-                ? 'No trade data available for calendar chart.'
-                : 'No dividend data available for calendar chart.'
-            }
-          </p>
-        </div>
-      )}
     </div>
   );
-};
+});
 
 CalendarChartButton.propTypes = {
   dateData: PropTypes.array,
@@ -214,8 +121,7 @@ CalendarChartButton.propTypes = {
   rowCount: PropTypes.oneOf([1, 2, 3, 4, 6, 12]),
   className: PropTypes.string,
   onChartDataReady: PropTypes.func,
-  onError: PropTypes.func,
-  showStats: PropTypes.bool
+  onError: PropTypes.func
 };
 
 CalendarChartButton.defaultProps = {
@@ -224,7 +130,6 @@ CalendarChartButton.defaultProps = {
   boxBorderColor: "#cccccc",
   rowCount: 3,
   className: "",
-  showStats: true,
   onChartDataReady: () => {},
   onError: () => {}
 };
