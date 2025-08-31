@@ -4,9 +4,11 @@ import { BasicTooltip } from '@nivo/tooltip'
 import './SankeyChart.css';
 
 function SankeyChartComponent(props) {
+  console.log(props.chartData);
   return (
     <div className="sankey-chart-container">
       <div className="sankey-chart-wrapper" style={{ height: '800px', width: '100%', marginTop: '20px' }}>
+        
         <ResponsiveSankey
           data={props.chartData}
           margin={{ top: 40, right: 160, bottom: 40, left: 50 }}
@@ -33,27 +35,10 @@ function SankeyChartComponent(props) {
             from: 'color',
             modifiers: [['darker', 1]]
           }}
-          legends={[
-            {
-              anchor: 'bottom-right',
-              direction: 'column',
-              translateX: 130,
-              itemWidth: 100,
-              itemHeight: 14,
-              itemDirection: 'right-to-left',
-              itemsSpacing: 2,
-              itemTextColor: '#999',
-              symbolSize: 14,
-              effects: [
-                {
-                  on: 'hover',
-                  style: {
-                    itemTextColor: '#000'
-                  }
-                }
-              ]
-            }
-          ]}
+          legends={[]}
+          valueFormat={value => `$${Number(value).toLocaleString('en-US', {
+            minimumFractionDigits: 2
+          })}`} 
           tooltip={({ node }) => (
             <BasicTooltip
               id={node.id}

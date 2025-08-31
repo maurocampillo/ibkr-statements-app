@@ -29,7 +29,7 @@ A reusable, accessible autocomplete component with multi-selection capabilities,
 ### Basic Implementation
 
 ```jsx
-import Autocomplete from './Autocomplete';
+import { Autocomplete } from '../../shared';
 
 function MyComponent() {
   const [selectedSources, setSelectedSources] = useState([]);
@@ -135,7 +135,7 @@ const handleSelectionChange = (newSelection) => {
 
 ```jsx
 // In SankeyChart component
-import Autocomplete from '../../ChartComponents/RealizedGainsComponent/Autocomplete';
+import { Autocomplete } from '../../shared';
 
 function SankeyChartComponent({ chartData }) {
   const [selectedSources, setSelectedSources] = useState([]);

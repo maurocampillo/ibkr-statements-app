@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import SankeyChart from '../../Chart/SankeyChart';
-import Autocomplete from './Autocomplete';
+import { Autocomplete } from '../../shared';
 import _ from 'lodash';
 import { 
   formatRealizedGainsDataForSankeyChart,
@@ -61,17 +61,17 @@ const RealizedGainsComponent = ({
       'value'
     );
     
-    const aggregatedNodes = nodes.concat([
-      { id: "realizedGains", name: "Realized Gains" }, 
-      { id: "dividends", name: "Dividends" }, 
-      { id: "total", name: "Total" }
-    ]);
+    const aggregatedNodes = _.uniqBy(nodes.concat([
+      { id: "realizedGains"}, 
+      { id: "dividends"}, 
+      { id: "total"}
+    ]), 'id');
     
     const aggregatedLinks = links.concat([
       { source: "realizedGains", target: "total", value: realizedGainsTotal }, 
       { source: "dividends", target: "total", value: dividendsTotal }
     ]);
-    
+    debugger
     return {
       nodes: aggregatedNodes,
       links: aggregatedLinks
