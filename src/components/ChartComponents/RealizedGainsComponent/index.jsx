@@ -2,10 +2,12 @@ import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import SankeyChart from '../../Chart/SankeyChart';
 import Autocomplete from './Autocomplete';
+import _ from 'lodash';
 import { 
   formatRealizedGainsDataForSankeyChart,
   formatRealizedGainsDataForSankeyChartBySymbol,
-  formatRealizedGainsDataForSankeyChartByCategory
+  formatRealizedGainsDataForSankeyChartByCategory,
+  getTopSourcesByAggregatedValue
 } from './RealizedGainsHandler';
 import './RealizedGainsComponent.css';
 
@@ -23,7 +25,7 @@ const RealizedGainsComponent = ({
   const [error, setError] = useState(null);
   const [selectedSources, setSelectedSources] = useState([]);
 
-    const chartTypes = [
+  const chartTypes = [
     {
       id: "overview",
       label: "Realized Gains Overview",
@@ -47,6 +49,7 @@ const RealizedGainsComponent = ({
     }
   ];
 
+
   // Extract all available sources from the current chart data
   const availableSources = useMemo(() => {
     if (!chartData?.links) return [];
@@ -56,9 +59,29 @@ const RealizedGainsComponent = ({
 
   // Create filtered chart data based on selected sources
   const filteredChartData = useMemo(() => {
-    if (!chartData || selectedSources.length === 0) {
+    if (!chartData || !chartData.links) {
       return chartData;
-    }
+    } else if (chartData && selectedSources.length === 0) {
+      const links = getTopSourcesByAggregatedValue(chartData.links, 10);
+      const symbols = links.map(link => link.source);
+      
+      const nodes = chartData.nodes.filter(node => symbols.includes(node.id));    
+      // Calculate and use the sums
+      const realizedGainsTotal = _.sumBy(
+        links.filter(e => e.target === "realizedGains"), 
+        'value'
+      );
+      const dividendsTotal = _.sumBy(
+        links.filter(e => e.target === "dividends"), 
+        'value'
+      );
+      const aggregatedNodes = nodes.concat([{id: "realizedGains", name: "Realized Gains"}, {id: "dividends", name: "Dividends"}, {id: "total", name: "Total"}]);
+      const aggregatedLinks = links.concat([{source: "realizedGains", target: "total", value: realizedGainsTotal}, {source: "dividends", target: "total", value: dividendsTotal}]);
+      return {
+        nodes: aggregatedNodes,
+        links: aggregatedLinks 
+      };
+    }    
 
     const filteredLinks = chartData.links.filter(link => 
       selectedSources.includes(link.source)
@@ -75,14 +98,33 @@ const RealizedGainsComponent = ({
       referencedNodeIds.has(node.id)
     );
 
+    const realizedGainsTotal = _.sumBy(
+      filteredLinks.filter(e => e.target === "realizedGains"), 
+      'value'
+    );
+    const dividendsTotal = _.sumBy(
+      filteredLinks.filter(e => e.target === "dividends"), 
+      'value'
+    );
+    const aggregatedNodes = filteredNodes.concat([{id: "realizedGains", name: "Realized Gains"}, {id: "dividends", name: "Dividends"}, {id: "total", name: "Total"}]);
+    const aggregatedLinks = filteredLinks.concat([{source: "realizedGains", target: "total", value: realizedGainsTotal}, {source: "dividends", target: "total", value: dividendsTotal}]);
+    
     return {
-      nodes: filteredNodes,
-      links: filteredLinks
+      nodes: aggregatedNodes,
+      links: aggregatedLinks
     };
   }, [chartData, selectedSources]);
 
   const handleSourceSelectionChange = (newSelection) => {
     setSelectedSources(newSelection);
+  };
+
+  const handleShowTop10Sources = () => {
+    if (!chartData?.links) return;
+    
+    const topSourceElements = getTopSourcesByAggregatedValue(chartData.links, 10);
+    const topSources = [...new Set(topSourceElements.map(link => link.source))];
+    setSelectedSources(topSources);
   };
 
   const handleChartClick = async (chartType) => {
@@ -169,6 +211,17 @@ const RealizedGainsComponent = ({
           
           {availableSources.length > 0 && (
             <div className="realized-gains-filter-section">
+              <div className="filter-section-header">
+                <h4>Filter Sources</h4>
+                <button 
+                  onClick={handleShowTop10Sources}
+                  className="top-sources-button"
+                  title="Show top 10 sources by total value (dividends + realized gains)"
+                >
+                  📊 Top 10 Sources
+                </button>
+              </div>
+              
               <Autocomplete
                 options={availableSources}
                 selectedValues={selectedSources}

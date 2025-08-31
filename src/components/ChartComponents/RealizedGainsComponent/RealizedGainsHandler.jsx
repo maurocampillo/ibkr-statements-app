@@ -113,11 +113,57 @@ const handleRealizedGainsByCategoryClick = (sectionsData, setChartData, setShowC
   setShowChart("realizedGainsSankeyCartByCategory");
 }
 
-export { 
-  handleRealizedGainsClick, 
-  handleRealizedGainsBySymbolClick, 
+/**
+ * Extracts the top N sources by aggregated value from chart data links
+ * @param {Array} links - Array of link objects with source, target, and value properties
+ * @param {number} topN - Number of top sources to return (default: 10)
+ * @returns {Array} Array of individual link elements for the top N sources by aggregated value
+ */
+const getTopSourcesByAggregatedValue = (links, topN = 10) => {
+  if (!links || !Array.isArray(links)) {
+    return [];
+  }
+
+  // Filter out links that go to "total" as these are aggregation links, not source data
+  const sourceLinks = links.filter(link => 
+    link.target !== 'total' && 
+    link.source && 
+    typeof link.value === 'number'
+  );
+
+  // Group by source and calculate total value for each source
+  const sourceAggregates = {};
+  sourceLinks.forEach(link => {
+    if (!sourceAggregates[link.source]) {
+      sourceAggregates[link.source] = {
+        totalValue: 0,
+        elements: []
+      };
+    }
+    sourceAggregates[link.source].totalValue += link.value;
+    sourceAggregates[link.source].elements.push(link);
+  });
+
+  // Sort sources by total aggregated value (descending)
+  const sortedSources = Object.entries(sourceAggregates)
+    .sort(([, a], [, b]) => b.totalValue - a.totalValue)
+    .slice(0, topN);
+
+  // Return all individual elements for the top N sources
+  const topSourceElements = [];
+  sortedSources.forEach(([source, data]) => {
+    topSourceElements.push(...data.elements);
+  });
+
+  return topSourceElements;
+};
+
+export {
+  handleRealizedGainsClick,
+  handleRealizedGainsBySymbolClick,
   handleRealizedGainsByCategoryClick,
   formatRealizedGainsDataForSankeyChart,
   formatRealizedGainsDataForSankeyChartBySymbol,
-  formatRealizedGainsDataForSankeyChartByCategory
+  formatRealizedGainsDataForSankeyChartByCategory,
+  getTopSourcesByAggregatedValue
 };
