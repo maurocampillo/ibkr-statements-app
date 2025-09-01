@@ -1,0 +1,145 @@
+/* Shared Chart Button Styles */
+/* Base styles that are common across all chart button components */
+
+/* Button Component Container */
+.chart-button-component {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Button Controls Container */
+.chart-button-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Base Chart Button Styles */
+.chart-button {
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+}
+
+/* Button Hover Effects */
+.chart-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Disabled Button State */
+.chart-button:disabled {
+  background: #ccc !important;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Active Button State */
+.chart-button.active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  border: 2px solid #fff;
+}
+
+/* Button Content Layout */
+.button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.button-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.button-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.active-indicator {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  margin-left: auto;
+}
+
+/* Color Variants */
+.chart-button.dividend {
+  background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%);
+}
+
+.chart-button.dividend.active {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+}
+
+.chart-button.calendar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.chart-button.calendar.active {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.chart-button.realized-gains {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+.chart-button.realized-gains.active {
+  background: linear-gradient(135deg, #e55353 0%, #d63031 100%);
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .chart-button-component {
+    width: 100%;
+  }
+  
+  .chart-button {
+    width: 100%;
+    text-align: center;
+    min-width: auto;
+    justify-content: center;
+  }
+  
+  .button-content {
+    align-items: center;
+  }
+}
+
+/* Focus States for Accessibility */
+.chart-button:focus {
+  outline: 2px solid #4299e1;
+  outline-offset: 2px;
+}
+
+.chart-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Loading State */
+.chart-button.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.chart-button.loading:hover {
+  transform: none;
+}

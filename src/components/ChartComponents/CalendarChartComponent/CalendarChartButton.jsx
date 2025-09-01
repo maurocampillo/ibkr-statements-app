@@ -1,6 +1,7 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import { formatCalendarChartData } from './CalendarChartHandler';
+import '../../shared/ChartButton/ChartButton.css';
 import './CalendarChartComponent.css';
 
 const CalendarChartButton = forwardRef(({
@@ -73,12 +74,12 @@ const CalendarChartButton = forwardRef(({
   const hasData = dateData && sectionsData?.dividends;
 
   return (
-    <div className={`calendar-chart-button-component ${className}`}>
-      <div className="calendar-chart-controls">
+    <div className={`chart-button-component ${className}`}>
+      <div className="chart-button-controls">
         <button 
           onClick={handleCalendarChartClick}
           disabled={isLoading || !hasData}
-          className={`calendar-chart-button ${showChart ? 'active' : ''} ${!hasData ? 'disabled' : ''}`}
+          className={`chart-button calendar ${showChart ? 'active' : ''} ${!hasData ? 'disabled' : ''}`}
           title={hasData ? 'Click to view monthly performance calendar' : 'Missing required data (trades or dividends)'}
         >
           <span className="button-icon">📅</span>

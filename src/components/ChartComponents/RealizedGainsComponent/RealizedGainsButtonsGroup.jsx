@@ -6,6 +6,7 @@ import {
   formatRealizedGainsDataForSankeyChartByCategory,
   getTopSourcesByAggregatedValue
 } from './RealizedGainsHandler';
+import '../../shared/ChartButton/ChartButton.css';
 import './RealizedGainsComponent.css';
 
 const RealizedGainsButtonsGroup = forwardRef(({
@@ -108,15 +109,14 @@ const RealizedGainsButtonsGroup = forwardRef(({
 
 
   return (
-    <div className={`realized-gains-buttons-group ${className}`}>
-      <div className="realized-gains-controls">
-        <div className="realized-gains-buttons">
-          {chartTypes.map((chart) => (
+    <>
+      {chartTypes.map((chart) => (
+        <div key={chart.id} className={`chart-button-component ${className}`}>
+          <div className="chart-button-controls">
             <button
-              key={chart.id}
               onClick={() => handleChartClick(chart.id)}
               disabled={isLoading || !chart.requiredData}
-              className={`realized-gains-button ${activeChart === chart.id ? 'active' : ''} ${!chart.requiredData ? 'disabled' : ''}`}
+              className={`chart-button realized-gains ${activeChart === chart.id ? 'active' : ''} ${!chart.requiredData ? 'disabled' : ''}`}
               title={chart.requiredData ? chart.description : `Missing required data for ${chart.label}`}
             >
               <span className="button-icon">{chart.icon}</span>
@@ -129,10 +129,10 @@ const RealizedGainsButtonsGroup = forwardRef(({
                 <span className="active-indicator">✓</span>
               )}
             </button>
-          ))}
+          </div>
         </div>
-      </div>
-    </div>
+      ))}
+    </>
   );
 });
 
