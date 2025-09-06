@@ -27,8 +27,8 @@
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
-    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,css,md,json}",
-    "format:check": "prettier --check src/**/*.{js,jsx,ts,tsx,css,md,json}",
+    "format": "prettier --write \"src/**/*.{js,jsx,css,md}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,css,md}\"",
     "code-quality": "npm run lint && npm run format:check",
     "code-quality:fix": "npm run lint:fix && npm run format"
   },

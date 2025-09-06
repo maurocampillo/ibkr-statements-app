@@ -18,24 +18,24 @@ A comprehensive React component that wraps LineChart with integrated business lo
 ```jsx
 import DividendChartComponent from './components/ChartComponents/DividendChartComponent';
 
-<DividendChartComponent 
+<DividendChartComponent
   sectionsData={sectionsData}
-  buttonText="Dividends"
-  className="custom-dividend-chart"
+  buttonText='Dividends'
+  className='custom-dividend-chart'
   showButton={true}
   autoShow={false}
-/>
+/>;
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `sectionsData` | Object | - | Object containing dividends array |
-| `buttonText` | String | "Dividends" | Text displayed on the trigger button |
-| `className` | String | "" | Additional CSS class for the component |
-| `showButton` | Boolean | true | Whether to show the trigger button |
-| `autoShow` | Boolean | false | Whether to automatically show the chart on mount |
+| Prop           | Type    | Default     | Description                                      |
+| -------------- | ------- | ----------- | ------------------------------------------------ |
+| `sectionsData` | Object  | -           | Object containing dividends array                |
+| `buttonText`   | String  | "Dividends" | Text displayed on the trigger button             |
+| `className`    | String  | ""          | Additional CSS class for the component           |
+| `showButton`   | Boolean | true        | Whether to show the trigger button               |
+| `autoShow`     | Boolean | false       | Whether to automatically show the chart on mount |
 
 ## Architecture
 
@@ -59,6 +59,7 @@ DividendChartComponent/
 ## Stats Preview
 
 The component displays a helpful stats preview showing:
+
 - **Total Amount**: Sum of all dividend payments
 - **Payment Count**: Number of dividend transactions
 - **Symbol Count**: Number of unique dividend-paying symbols
@@ -67,12 +68,14 @@ The component displays a helpful stats preview showing:
 ## Chart Data Processing
 
 ### Data Formatting
+
 - Uses `formatDividendDataForLineChart(dividends)`
 - Groups dividends by month using `formatDate` utility
 - Aggregates amounts for each month
 - Sorts data chronologically for proper line chart display
 
 ### Date Handling
+
 - Converts dates to "MMM YYYY" format (e.g., "Jan 2024")
 - Groups multiple dividends in the same month
 - Maintains chronological order for trend visualization
@@ -89,6 +92,7 @@ The component displays a helpful stats preview showing:
 ## Calculated Insights
 
 The component automatically calculates and displays:
+
 - **Average per Payment**: Total amount divided by payment count
 - **Diversification**: Number of unique dividend-paying symbols
 - **Date Range**: Earliest to latest dividend payment dates
@@ -96,6 +100,7 @@ The component automatically calculates and displays:
 ## Styling Features
 
 The component includes comprehensive CSS with:
+
 - **Modern Gradient Button**: Green-to-teal gradient for positive financial theme
 - **Stats Grid**: Responsive grid layout for key metrics
 - **Hover Effects**: Interactive elements with smooth transitions
@@ -114,20 +119,22 @@ The component includes comprehensive CSS with:
 ## Data Requirements
 
 ### Expected Data Structure
+
 ```javascript
 sectionsData: {
   dividends: [
     {
-      date: "2024-01-15",
-      amount: "25.50",
-      symbol: "AAPL"
-    },
+      date: '2024-01-15',
+      amount: '25.50',
+      symbol: 'AAPL'
+    }
     // ... more dividend entries
-  ]
+  ];
 }
 ```
 
 ### Validation Rules
+
 - `sectionsData` must be an object
 - `dividends` must be an array
 - Array must not be empty
