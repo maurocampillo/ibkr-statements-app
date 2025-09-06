@@ -1,0 +1,20 @@
+# Global code owners
+# These owners will be the default owners for everything in the repo
+# Unless a later match takes precedence, these users will be requested for review
+* @maurocampillo
+
+# Frontend components
+/src/components/ @maurocampillo
+
+# Configuration files - require extra scrutiny
+package.json @maurocampillo
+package-lock.json @maurocampillo
+.eslintrc.js @maurocampillo
+.prettierrc.js @maurocampillo
+
+# GitHub workflows - critical for CI/CD
+/.github/ @maurocampillo
+
+# Documentation
+*.md @maurocampillo
+/docs/ @maurocampillo

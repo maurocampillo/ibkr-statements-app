@@ -1,23 +1,24 @@
-import React, { useState, useEffect } from 'react';
 import { ResponsiveLine } from '@nivo/line';
+import { useState, useEffect } from 'react';
+
 import { useTheme } from '../../../hooks/useTheme';
 
 function LineChartComponent(props) {
   const { theme } = useTheme();
   const [themeColors, setThemeColors] = useState({});
-  
+
   // Theme-aware colors
   const isDark = theme === 'dark';
   const isHighContrast = theme === 'high-contrast';
-  
+
   // Get computed CSS variables from the document
-  const getComputedCSSVar = (varName) => {
+  const getComputedCSSVar = varName => {
     if (typeof window !== 'undefined') {
       return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
     }
     return '';
   };
-  
+
   // Update theme colors when theme changes
   useEffect(() => {
     const updateThemeColors = () => {
@@ -28,52 +29,56 @@ function LineChartComponent(props) {
         legendBackground: isDark ? 'rgba(45, 55, 72, 0.9)' : 'rgba(255, 255, 255, 0.9)',
         legendHover: isDark ? 'rgba(226, 232, 240, 0.1)' : 'rgba(0, 0, 0, 0.06)'
       };
-      
+
       console.log('LineChart theme update:', { theme, isDark, newColors });
       setThemeColors(newColors);
     };
-    
+
     // Initial load
     updateThemeColors();
-    
+
     // Small delay to ensure CSS variables are loaded
     const timeoutId = setTimeout(updateThemeColors, 100);
-    
+
     return () => clearTimeout(timeoutId);
   }, [theme, isDark]);
 
   // Don't render until theme colors are loaded
   if (!themeColors.text) {
     return (
-      <div style={{ 
-        height: '400px', 
-        width: '100%', 
-        marginTop: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: '8px'
-      }}>
+      <div
+        style={{
+          height: '400px',
+          width: '100%',
+          marginTop: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '8px'
+        }}
+      >
         <div>Loading chart...</div>
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      height: '400px', 
-      width: '100%', 
-      marginTop: '20px',
-      backgroundColor: themeColors.background,
-      borderRadius: '8px',
-      transition: 'background-color 0.3s ease'
-    }}>
+    <div
+      style={{
+        height: '400px',
+        width: '100%',
+        marginTop: '20px',
+        backgroundColor: themeColors.background,
+        borderRadius: '8px',
+        transition: 'background-color 0.3s ease'
+      }}
+    >
       <ResponsiveLine
         key={`line-${theme}-${JSON.stringify(themeColors)}`}
         data={props.chartData}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
         xScale={{
-          type: 'point',
+          type: 'point'
         }}
         yScale={{
           type: 'linear',
@@ -82,8 +87,8 @@ function LineChartComponent(props) {
           stacked: true,
           reverse: false
         }}
-        yFormat=" >$.2f"
-        curve="monotoneX"
+        yFormat=' >$.2f'
+        curve='monotoneX'
         enableCrosshair={false}
         axisTop={null}
         axisRight={null}
@@ -104,12 +109,12 @@ function LineChartComponent(props) {
           legendPosition: 'middle',
           tickColor: themeColors.grid,
           legendTextColor: themeColors.text,
-          format: (v) => {
+          format: v => {
             //Move to utils
             return v.toLocaleString('en-US', {
               style: 'currency',
               currency: 'USD'
-           });
+            });
           }
         }}
         theme={{
@@ -166,7 +171,7 @@ function LineChartComponent(props) {
         pointColor={{ theme: 'background' }}
         pointBorderWidth={2}
         pointBorderColor={{ from: 'serieColor' }}
-        pointLabel="y"
+        pointLabel='y'
         pointLabelYOffset={-12}
         useMesh={true}
         legends={[
@@ -199,7 +204,8 @@ function LineChartComponent(props) {
           }
         ]}
       />
-    </div>)
+    </div>
+  );
 }
 
 export default LineChartComponent;

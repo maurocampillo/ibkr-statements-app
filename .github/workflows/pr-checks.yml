@@ -1,0 +1,148 @@
+name: Pull Request Checks
+
+# Only run on pull requests
+on:
+  pull_request:
+    branches: [ main, master ]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Cancel previous runs if a new commit is pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-quality-gate:
+    name: PR Quality Gate
+    runs-on: ubuntu-latest
+    
+    # Skip draft PRs
+    if: github.event.pull_request.draft == false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        # Fetch full history for better diff analysis
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'yarn'
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    # Run linting only on changed files for faster feedback
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v40
+      with:
+        files: |
+          src/**/*.{js,jsx,ts,tsx}
+
+    - name: Run ESLint on changed files
+      if: steps.changed-files.outputs.any_changed == 'true'
+      run: |
+        echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
+        npx eslint ${{ steps.changed-files.outputs.all_changed_files }}
+
+    - name: Run Prettier check on changed files
+      if: steps.changed-files.outputs.any_changed == 'true'
+      run: |
+        npx prettier --check ${{ steps.changed-files.outputs.all_changed_files }}
+
+    # Run full test suite
+    - name: Run tests with coverage
+      run: yarn test --coverage --watchAll=false
+
+    # Ensure project builds successfully
+    - name: Build project
+      run: yarn build
+
+    # Comment on PR with coverage info
+    - name: Comment PR with coverage
+      uses: romeovs/lcov-reporter-action@v0.3.1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        lcov-file: ./coverage/lcov.info
+        delete-old-comments: true
+
+  # Check for breaking changes
+  breaking-changes:
+    name: Check for Breaking Changes
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'yarn'
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    # Check if package.json dependencies changed
+    - name: Check for dependency changes
+      run: |
+        git diff origin/main -- package.json > package-diff.txt
+        if [ -s package-diff.txt ]; then
+          echo "::warning::Package.json dependencies have changed. Please review carefully."
+          cat package-diff.txt
+        fi
+
+    # Check for large file additions
+    - name: Check for large files
+      run: |
+        large_files=$(find . -type f -size +1M -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./build/*")
+        if [ ! -z "$large_files" ]; then
+          echo "::error::Large files detected (>1MB):"
+          echo "$large_files"
+          exit 1
+        fi
+
+  # Performance check
+  bundle-size:
+    name: Bundle Size Check
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'yarn'
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Build project
+      run: yarn build
+
+    - name: Analyze bundle size
+      run: |
+        # Install bundle analyzer
+        npm install -g webpack-bundle-analyzer
+        
+        # Check build size
+        build_size=$(du -sh build/ | cut -f1)
+        echo "Build size: $build_size"
+        
+        # Warn if build is larger than 5MB
+        build_size_bytes=$(du -sb build/ | cut -f1)
+        if [ $build_size_bytes -gt 5242880 ]; then
+          echo "::warning::Build size is larger than 5MB ($build_size). Consider optimizing."
+        fi
