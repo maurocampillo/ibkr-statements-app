@@ -10,12 +10,11 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
-    "json-edit-react": "^1.23.1",
     "lodash": "^4.17.21",
+    "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-csv-reader": "^4.0.0",
     "react-dom": "^19.0.0",
-    "react-json-tree": "^0.19.0",
     "react-json-view": "^1.21.3",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
@@ -30,6 +29,7 @@
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,css,md}\"",
+    "deps:check": "depcheck --ignores=\"@testing-library/*,web-vitals,react-scripts,@nivo/core,eslint-config-react-app\" --ignore-patterns=\"build/*,coverage/*,public/*\"",
     "code-quality": "npm run lint && npm run format:check",
     "code-quality:fix": "npm run lint:fix && npm run format"
   },
@@ -57,10 +57,16 @@
     ]
   },
   "devDependencies": {
+    "depcheck": "^1.4.7",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-unused-imports": "^4.2.0",
     "prettier": "^3.6.2"
+  },
+  "resolutions": {
+    "nth-check": ">=2.0.1",
+    "postcss": ">=8.4.31",
+    "webpack-dev-server": ">=5.2.1"
   }
 }
