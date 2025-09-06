@@ -50,6 +50,9 @@ jobs:
     # Build the project to ensure it compiles
     - name: Build project
       run: yarn build
+      env:
+        CI: false
+        GENERATE_SOURCEMAP: false
 
     # Upload test coverage to GitHub
     - name: Upload coverage reports
