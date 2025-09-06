@@ -2,7 +2,10 @@
 .dividend-chart-component {
   margin: 20px 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: var(--font-family-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: var(--transition-normal);
 }
 
 /* Controls Section */
@@ -61,14 +64,15 @@
 
 /* Stats Preview */
 .dividend-stats-preview {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 8px;
+  background: var(--bg-container);
+  border-radius: var(--radius-md);
   padding: 16px;
   margin-bottom: 16px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-primary);
+  transition: var(--transition-normal);
 }
 
 .stat-item {
@@ -76,29 +80,39 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.stat-item:hover {
+  background: var(--bg-tertiary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-label {
-  font-size: 12px;
-  color: #6c757d;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
   margin-bottom: 4px;
 }
 
 .stat-value {
-  font-size: 14px;
-  font-weight: 700;
-  color: #2c3e50;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
 }
 
 /* Error Handling */
 .dividend-chart-error {
-  background: #fee;
-  border: 1px solid #fcc;
-  border-radius: 8px;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border, #fcc);
+  border-radius: var(--radius-md);
   padding: 16px;
   margin: 16px 0;
-  color: #c33;
+  color: var(--error-text);
 }
 
 .dividend-chart-error p {
@@ -123,31 +137,32 @@
 
 /* Chart Container */
 .dividend-chart-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   padding: 24px;
   margin: 16px 0;
-  border: 1px solid #e1e8ed;
+  border: 1px solid var(--border-primary);
+  transition: var(--transition-normal);
 }
 
 .dividend-chart-header {
   text-align: center;
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 2px solid #f1f3f4;
+  border-bottom: 2px solid var(--border-secondary);
 }
 
 .dividend-chart-header h3 {
   margin: 0 0 8px 0;
-  color: #2c3e50;
-  font-size: 24px;
-  font-weight: 700;
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
 }
 
 .dividend-chart-header p {
   margin: 0;
-  color: #7f8c8d;
+  color: var(--text-secondary);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -156,7 +171,7 @@
   margin: 20px 0;
   border-radius: 8px;
   overflow: hidden;
-  background: #fafafa;
+  background-color: var(--bg-primary);
 }
 
 .dividend-chart-footer {
@@ -494,6 +509,71 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* No Data Message */
+.no-data-message {
+  text-align: center;
+  padding: 40px 20px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--border-primary);
+  margin: 20px 0;
+}
+
+.no-data-message .no-data-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.no-data-message p {
+  color: var(--text-secondary);
+  font-size: var(--font-size-md);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Dark Theme Specific Adjustments */
+[data-theme="dark"] .dividend-chart-container {
+  background: var(--bg-secondary);
+  border-color: var(--border-secondary);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="dark"] .dividend-stats-preview {
+  background: var(--bg-tertiary);
+  border-color: var(--border-secondary);
+}
+
+[data-theme="dark"] .dividend-stats-preview .stat-item {
+  background: var(--bg-primary);
+  border-color: var(--border-primary);
+}
+
+[data-theme="dark"] .dividend-stats-preview .stat-item:hover {
+  background: var(--bg-secondary);
+  border-color: var(--color-primary);
+}
+
+[data-theme="dark"] .no-data-message {
+  background: var(--bg-tertiary);
+  border-color: var(--border-secondary);
+}
+
+/* High Contrast Theme Adjustments */
+[data-theme="high-contrast"] .dividend-chart-container {
+  border-width: 2px;
+  border-color: var(--border-primary);
+}
+
+[data-theme="high-contrast"] .dividend-stats-preview .stat-item {
+  border-width: 2px;
+  font-weight: var(--font-weight-bold);
+}
+
+[data-theme="high-contrast"] .dividend-chart-header h3 {
+  font-weight: var(--font-weight-bold);
 }
 
 /* Hover effects for stats */

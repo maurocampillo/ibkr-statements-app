@@ -1,17 +1,18 @@
-// src/App.js
-import React, { useState, useCallback } from 'react';
+// Example of how to integrate the theme system into your App.jsx
+import React, { useState } from 'react';
 import ReactJson from 'react-json-view';
 import Parser from './components/Parser';
 import CalendarChartComponent from './components/ChartComponents/CalendarChartComponent';
 import RealizedGainsComponent from './components/ChartComponents/RealizedGainsComponent';
 import RealizedGainsButtonsGroup from './components/ChartComponents/RealizedGainsComponent/RealizedGainsButtonsGroup';
-
 import DividendChartButton from './components/ChartComponents/DividendChartComponent/DividendChartButton';
 import DividendChartComponent from './components/ChartComponents/DividendChartComponent';
 import CalendarChartButton from './components/ChartComponents/CalendarChartComponent/CalendarChartButton';
+import ThemeSelector from './components/shared/ThemeSelector/ThemeSelector';
 
-import { useTheme } from './hooks/useTheme';
-import './App.css';
+// Import theme styles
+import './styles/themes.css';
+import './App.themed.css'; // Updated App.css with theme variables
 
 function App() {
   const [sectionsData, setSectionsData] = useState(null);
@@ -21,9 +22,6 @@ function App() {
   const [calendarChart, setCalendarChart] = useState(null);
   const [realizedGainsChart, setRealizedGainsChart] = useState(null);
   const [activeChart, setActiveChart] = useState(null);
-  
-  // Theme hook for dark mode toggle
-  const { setTheme, theme } = useTheme();
   
   // Refs to store reset functions for each button component
   const dividendButtonRef = React.useRef(null);
@@ -69,7 +67,7 @@ function App() {
   };
 
   const handleCalendarChartReady = (chartInfo) => {
-    if (chartInfo && chartInfo.show) {
+    if (chartInfo) {
       // Reset other charts and buttons when calendar chart is activated
       setDividendChart(null);
       setRealizedGainsChart(null);
@@ -78,23 +76,13 @@ function App() {
       setActiveChart("calendar");    
       setCalendarChart(chartInfo);
     } else {
-      // If chartInfo is null or show is false, clear the calendar chart
+      // If chartInfo is null, just clear the calendar chart
       setCalendarChart(null);
       if (activeChart === "calendar") {
         setActiveChart(null);
       }
     }
   };
-
-  const handleCalendarDataReady = useCallback((chartData) => {
-    // This is called from CalendarChartComponent when data is ready
-    if (chartData && activeChart === "calendar") {
-      setCalendarChart(prev => ({
-        ...prev,
-        ...chartData
-      }));
-    }
-  }, [activeChart]);
 
   const handleRealizedGainsChartReady = (chartInfo) => {
     if (chartInfo) {
@@ -114,25 +102,13 @@ function App() {
     }
   };
 
-  const handleDarkModeToggle = () => {       
-    const newTheme = theme == 'dark' ? 'light' : 'dark';     
-    setTheme(newTheme);
-  };
-
   return (
     <div className="App">
-      <div className="app-header">
+      {/* App Header with Theme Selector */}
+      <header className="app-header">
         <h1>Client-Side CSV Parser</h1>
-        <button 
-          onClick={handleDarkModeToggle}
-          className="dark-mode-toggle"
-          aria-label={`Switch to ${theme == 'dark' ? 'light' : 'dark'} mode`}
-          title={`Switch to ${theme == 'dark' ? 'light' : 'dark'} mode`}
-        >
-          <span className="theme-icon">{theme == 'dark' ? '☀️' : '🌙'}</span>
-          <span className="theme-text">{theme == 'dark' ? 'Light' : 'Dark'}</span>
-        </button>
-      </div>
+        <ThemeSelector variant="toggle" showLabels={true} />
+      </header>
       
       <Parser setSectionsData={setSectionsData} setTotals={setTotals} setTrades={setTrades} />
 
@@ -165,10 +141,12 @@ function App() {
           onChartDataReady={handleRealizedGainsChartReady}
         />
       </div>
+
       {/* Dividend Chart Display */}
       {dividendChart && activeChart === 'dividends' && (          
         <DividendChartComponent sectionsData={sectionsData} />
       )}
+      
       {/* Calendar Chart Display */}
       {calendarChart && activeChart === 'calendar' && (
         <CalendarChartComponent 
@@ -177,11 +155,9 @@ function App() {
           defaultBoxColor={calendarChart.config?.defaultBoxColor || "#f5f5f5"}
           boxBorderColor={calendarChart.config?.boxBorderColor || "#cccccc"}
           rowCount={calendarChart.config?.rowCount || 3}
-          showStats={true}
-          onChartDataReady={handleCalendarDataReady}
         />
       )}
-
+      
       {/* Realized Gains Chart Display */}
       {realizedGainsChart && activeChart === 'realized-gains' && (
         <RealizedGainsComponent 
@@ -198,7 +174,7 @@ function App() {
           <h3>Parsed Sections Data:</h3>          
           <ReactJson 
             src={trades}
-            theme={theme == 'dark' ? "monokai" : "rjv-default"}
+            theme="rjv-default" // You can make this dynamic based on current theme
             displayDataTypes={false}
             displayObjectSize={false}
             enableClipboard={false}

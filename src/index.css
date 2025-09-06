@@ -1,13 +1,93 @@
+/* Import theme variables */
+@import './styles/themes.css';
+
+/* Root HTML element - base theme setup */
+html {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Body element - inherits from html */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-family-primary, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+}
+
+/* React root container - ensures full theme coverage */
+#root {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: var(--font-family-mono, source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: 2px 4px;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.9em;
+}
+
+/* Global theme-aware scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Dark theme scrollbar adjustments */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+}
+
+/* Selection colors that work with themes */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+}
+
+::-moz-selection {
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+}
+
+/* Focus outline that works with themes */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Disable transitions during theme switching to prevent flashing */
+.theme-switching,
+.theme-switching *,
+.theme-switching *:before,
+.theme-switching *:after {
+  transition: none !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
 }

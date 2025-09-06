@@ -6,27 +6,28 @@ const formatCalendarChartData = (trades, dividends) => {
 
   // Initialize result object with all months
   const result = {
-    "1": { value: 0 },
-    "2": { value: 0 },
-    "3": { value: 0 },
-    "4": { value: 0 },
-    "5": { value: 0 },
-    "6": { value: 0 },
-    "7": { value: 0 },
-    "8": { value: 0 },
-    "9": { value: 0 },
-    "10": { value: 0 },
-    "11": { value: 0 },
-    "12": { value: 0  }
+    "1": { value: 0, hasData: false },
+    "2": { value: 0, hasData: false },
+    "3": { value: 0, hasData: false },
+    "4": { value: 0, hasData: false },
+    "5": { value: 0, hasData: false },
+    "6": { value: 0, hasData: false },
+    "7": { value: 0, hasData: false },
+    "8": { value: 0, hasData: false },
+    "9": { value: 0, hasData: false },
+    "10": { value: 0, hasData: false },
+    "11": { value: 0, hasData: false },
+    "12": { value: 0, hasData: false }
   };
 
   // Process each trade
   trades.forEach(trade => {
     if (trade.datetime && trade.realizedPl) {
       // Extract month from dateTime (format: "2025-01-03, 11:08:24")
-      const month = parseInt(trade.datetime.split('-')[1]);
+      const month = parseInt(trade.datetime.split('-')[1]);      
       if (month >= 1 && month <= 12) {
         result[month].value += trade.realizedPl;
+        result[month].hasData = true;
       }
     }
   });
@@ -36,11 +37,10 @@ const formatCalendarChartData = (trades, dividends) => {
     if (month >= 1 && month <= 12) {
       result[month].value += parseFloat(dividend.amount);
     }
-  });
-  
+  });  
   // Round values to 2 decimal places
   Object.keys(result).forEach(month => {      
-    result[month].value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
+    result[month].formattedValue = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
       .format(Math.round(result[month].value * 100) / 100);
   });
 

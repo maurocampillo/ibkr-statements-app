@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import CalendarChart from '../../Chart/CalendarChart';
 import { formatCalendarChartData } from './CalendarChartHandler';
@@ -11,7 +11,8 @@ const CalendarChartComponent = ({
   boxBorderColor = "#cccccc",
   rowCount = 3,
   className = "",
-  showStats = true
+  showStats = true,
+  onChartDataReady
 }) => {
   const chartData = useMemo(() => {
     if (!dateData || !sectionsData?.dividends) {
@@ -26,45 +27,85 @@ const CalendarChartComponent = ({
     }
   }, [dateData, sectionsData?.dividends]);
 
-  const getCalendarStats = () => {
-    if (!dateData || !sectionsData?.dividends) {
+  // Use ref to track if we've already called onChartDataReady for this data
+  const lastChartDataRef = useRef(null);
+  const lastConfigRef = useRef(null);
+
+  // Handle chart data ready callback
+  useEffect(() => {
+    if (!onChartDataReady || !chartData) {
+      return;
+    }
+
+    // Create a stable config object
+    const currentConfig = {
+      defaultBoxColor,
+      boxBorderColor,
+      rowCount
+    };
+
+    // Check if data or config has actually changed
+    const configChanged = JSON.stringify(currentConfig) !== JSON.stringify(lastConfigRef.current);
+    const dataChanged = chartData !== lastChartDataRef.current;
+
+    if (dataChanged || configChanged) {
+      lastChartDataRef.current = chartData;
+      lastConfigRef.current = currentConfig;
+
+      onChartDataReady({
+        type: 'calendar',
+        data: chartData,
+        title: 'Monthly Performance Overview',
+        description: 'Combined realized gains from trades and dividend income by month',
+        config: currentConfig
+      });
+    }
+  }, [chartData, defaultBoxColor, boxBorderColor, rowCount]); // Removed onChartDataReady from deps
+
+  const getCalendarStats = () => {    
+    if (!chartData || !Object.values(chartData)) {
       return null;
     }
 
-    const totalTrades = dateData.length;
-    const totalDividends = sectionsData.dividends.length;
-    
-    // Calculate total realized gains from trades
-    const totalRealizedGains = dateData.reduce((sum, trade) => {
-      const realizedPL = parseFloat(trade.realizedPL || 0);
-      return sum + realizedPL;
+    const months = Object.values(chartData)
+
+    // 1. Total amount earned by adding amounts for every month
+    const totalEarned = months.reduce((sum, monthData) => {
+      return sum + (monthData.value || 0);
     }, 0);
 
-    // Calculate total dividend income
-    const totalDividendIncome = sectionsData.dividends.reduce((sum, div) => {
-      return sum + parseFloat(div.amount || 0);
-    }, 0);
+    debugger
 
-    const totalValue = totalRealizedGains + totalDividendIncome;
+    // 2. Average amount by computing all months in months
+    const avgAmountAllMonths = months.length > 0 ? totalEarned / months.length : 0;
 
-    // Get date range
-    const allDates = [
-      ...dateData.map(trade => new Date(trade.dateTime)),
-      ...sectionsData.dividends.map(div => new Date(div.date))
-    ].filter(date => !isNaN(date));
+    // 3. Average amount by computing elements where hasData is true
+    const monthsWithData = months.filter(monthData => monthData.hasData === true);
+    const avgAmountActiveMonths = monthsWithData.length > 0 
+      ? monthsWithData.reduce((sum, monthData) => sum + (monthData.value || 0), 0) / monthsWithData.length 
+      : 0;
 
-    const dateRange = allDates.length > 0 ? {
-      start: new Date(Math.min(...allDates)),
-      end: new Date(Math.max(...allDates))
-    } : null;
+    // 4. Month with highest amount
+    const highestMonth = months.reduce((max, monthData) => {
+      return (monthData.value || 0) > (max.value || 0) ? monthData : max;
+    }, months[0] || {});
+
+    // 5. Month with lowest amount (only consider months with data)
+    const lowestMonth = monthsWithData.length > 0 
+      ? monthsWithData.reduce((min, monthData) => {
+          return (monthData.value || 0) < (min.value || 0) ? monthData : min;
+        }, monthsWithData[0])
+      : null;
+    debugger
 
     return {
-      totalTrades,
-      totalDividends,
-      totalRealizedGains,
-      totalDividendIncome,
-      totalValue,
-      dateRange
+      totalEarned,
+      avgAmountAllMonths,
+      avgAmountActiveMonths,
+      highestMonth,
+      lowestMonth,
+      totalMonths: chartData.length,
+      activeMonths: monthsWithData.length
     };
   };
 
@@ -103,43 +144,47 @@ const CalendarChartComponent = ({
             {stats && showStats && (
               <div className="calendar-stats-preview">
                 <div className="stats-header">
-                  <h4>📊 Performance Summary</h4>
+                  <h4>📊 Calendar Summary</h4>
                 </div>
                 <div className="stats-grid">
                   <div className="stat-item">
-                    <span className="stat-label">Total Value:</span>
+                    <span className="stat-label">Total Earned:</span>
                     <span className="stat-value">
-                      {stats.totalValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      {stats.totalEarned.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                     </span>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-label">Realized Gains:</span>
+                    <span className="stat-label">Avg per Month (All):</span>
                     <span className="stat-value">
-                      {stats.totalRealizedGains.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      {stats.avgAmountAllMonths.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                     </span>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-label">Dividend Income:</span>
+                    <span className="stat-label">Avg per Active Month:</span>
                     <span className="stat-value">
-                      {stats.totalDividendIncome.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      {stats.avgAmountActiveMonths.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                     </span>
                   </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Total Trades:</span>
-                    <span className="stat-value">{stats.totalTrades}</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Dividend Payments:</span>
-                    <span className="stat-value">{stats.totalDividends}</span>
-                  </div>
-                  {stats.dateRange && (
+                  {stats.highestMonth && (
                     <div className="stat-item">
-                      <span className="stat-label">Date Range:</span>
+                      <span className="stat-label">Best Month:</span>
                       <span className="stat-value">
-                        {stats.dateRange.start.toLocaleDateString()} - {stats.dateRange.end.toLocaleDateString()}
+                         {(stats.highestMonth.value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                       </span>
                     </div>
                   )}
+                  {stats.lowestMonth && (
+                    <div className="stat-item">
+                      <span className="stat-label">Lowest Month:</span>
+                      <span className="stat-value">
+                        {(stats.lowestMonth.value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      </span>
+                    </div>
+                  )}
+                  <div className="stat-item">
+                    <span className="stat-label">Active Months:</span>
+                    <span className="stat-value">{stats.activeMonths} of 12</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -163,7 +208,8 @@ CalendarChartComponent.propTypes = {
   boxBorderColor: PropTypes.string,
   rowCount: PropTypes.oneOf([1, 2, 3, 4, 6, 12]),
   className: PropTypes.string,
-  showStats: PropTypes.bool
+  showStats: PropTypes.bool,
+  onChartDataReady: PropTypes.func
 };
 
 export default CalendarChartComponent;

@@ -1,13 +1,13 @@
 import React from 'react';
 import { ResponsiveSankey } from '@nivo/sankey'
-import { BasicTooltip } from '@nivo/tooltip'
 import './SankeyChart.css';
 
 function SankeyChartComponent(props) {
   console.log(props.chartData);
+
   return (
     <div className="sankey-chart-container">
-      <div className="sankey-chart-wrapper" style={{ height: '800px', width: '100%', marginTop: '20px' }}>
+      <div className="sankey-chart-wrapper" style={{ height: '800px', width: '100%' }}>
         
         <ResponsiveSankey
           data={props.chartData}
@@ -31,21 +31,23 @@ function SankeyChartComponent(props) {
           labelPosition="outside"
           labelOrientation="vertical"
           labelPadding={16}
-          labelTextColor={{
-            from: 'color',
-            modifiers: [['darker', 1]]
-          }}
           legends={[]}
           valueFormat={value => `$${Number(value).toLocaleString('en-US', {
             minimumFractionDigits: 2
           })}`} 
           tooltip={({ node }) => (
-            <BasicTooltip
-              id={node.id}
-              value={node.value}
-              enableChip={true}
-              color={node.color}
-            />
+            <div className="sankey-tooltip">
+              <div className="sankey-tooltip-header">
+                <div 
+                  className="sankey-tooltip-color" 
+                  style={{ backgroundColor: node.color }}
+                />
+                <span className="sankey-tooltip-label">{node.id}</span>
+              </div>
+              <div className="sankey-tooltip-value">
+                {`$${Number(node.value).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+              </div>
+            </div>
           )}
         />
       </div>

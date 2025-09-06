@@ -1,0 +1,167 @@
+/* Themed App.css - Updated to use CSS custom properties */
+
+.App {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  font-family: var(--font-family-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: var(--transition-normal);
+}
+
+/* App Header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-3xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+h1 {
+  color: var(--text-primary);
+  text-align: left;
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.file-upload {
+  margin: var(--spacing-xl) 0;
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-primary);
+}
+
+.file-upload span {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.error {
+  background-color: var(--error-bg);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-xl);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
+}
+
+.result {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-primary);
+}
+
+.result h3 {
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+pre {
+  background-color: var(--bg-tertiary);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  max-height: 600px;
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
+}
+
+/* Chart Buttons Row Layout */
+.chart-buttons-container {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-xl);
+  margin: var(--spacing-3xl) 0;
+  padding: var(--spacing-xl);
+  background: var(--bg-container);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Responsive behavior for smaller screens */
+@media (max-width: 768px) {
+  .App {
+    padding: var(--spacing-md);
+  }
+  
+  .app-header {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    text-align: center;
+  }
+  
+  h1 {
+    text-align: center;
+    font-size: var(--font-size-xl);
+  }
+  
+  .chart-buttons-container {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    align-items: stretch;
+  }
+  
+  .file-upload {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Ensure button components fit well in the row */
+.chart-buttons-container > * {
+  flex: 1;  
+  max-width: 400px;
+}
+
+/* Theme-specific adjustments */
+[data-theme="dark"] .chart-buttons-container {
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="high-contrast"] .chart-buttons-container {
+  border: 2px solid var(--border-primary);
+}
+
+[data-theme="high-contrast"] .error {
+  border: 2px solid var(--error-border);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Focus management for accessibility */
+.App:focus-within {
+  /* Enhanced focus styles when any child element is focused */
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .App,
+  .chart-buttons-container,
+  .file-upload,
+  .result {
+    transition: none;
+  }
+}

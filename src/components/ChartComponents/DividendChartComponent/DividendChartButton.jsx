@@ -1,6 +1,7 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import { formatDividendDataForLineChart } from './DividendChartHandler';
+import '../../shared/ChartButton/ChartButton.css';
 import './DividendChartComponent.css';
 
 const DividendChartButton = forwardRef(({
@@ -63,12 +64,12 @@ const DividendChartButton = forwardRef(({
   const hasData = sectionsData?.dividends?.length > 0;
 
   return (
-    <div className={`dividend-chart-button-component ${className}`}>
-      <div className="dividend-chart-controls">
+    <div className={`chart-button-component ${className}`}>
+      <div className="chart-button-controls">
         <button 
           onClick={handleDividendsClick}
           disabled={isLoading || !hasData}
-          className={`dividend-chart-button ${showChart ? 'active' : ''} ${!hasData ? 'disabled' : ''}`}
+          className={`chart-button dividend ${showChart ? 'active' : ''} ${!hasData ? 'disabled' : ''}`}
           title={hasData ? 'Click to view dividend analysis' : 'No dividend data available'}
         >
           <span className="button-icon">💰</span>
