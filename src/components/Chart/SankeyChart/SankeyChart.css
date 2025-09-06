@@ -1,15 +1,33 @@
 /* Sankey Chart Styles */
 .sankey-chart-container {
   width: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: var(--font-family-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: var(--transition-normal);
 }
 
 /* Sankey Chart Wrapper */
 .sankey-chart-wrapper {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
+  border: 1px solid var(--border-primary);
+  transition: var(--transition-normal);
+}
+
+/* Sankey Chart SVG Text Elements */
+.sankey-chart-wrapper svg text {
+  fill: var(--text-primary) !important;
+  font-family: var(--font-family-primary) !important;
+  transition: var(--transition-fast);
+}
+
+/* Sankey Chart Labels */
+.sankey-chart-wrapper svg g[class*="label"] text {
+  fill: var(--text-secondary) !important;
+  font-size: 12px !important;
 }
 
 /* Responsive Design */
@@ -41,9 +59,89 @@
   }
 }
 
+/* Dark Theme Specific Adjustments */
+[data-theme="dark"] .sankey-chart-wrapper {
+  background: var(--bg-secondary);
+  border-color: var(--border-secondary);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="dark"] .sankey-chart-wrapper svg text {
+  fill: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .sankey-chart-wrapper svg g[class*="label"] text {
+  fill: var(--text-secondary) !important;
+}
+
+/* High Contrast Theme Adjustments */
+[data-theme="high-contrast"] .sankey-chart-wrapper {
+  border-width: 2px;
+  border-color: var(--border-primary);
+}
+
+/* Tooltip Styles */
+.sankey-tooltip {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: var(--font-family-primary);
+  transition: var(--transition-fast);
+}
+
+.sankey-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.sankey-tooltip-color {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-secondary);
+}
+
+.sankey-tooltip-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.sankey-tooltip-value {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* Dark Theme Tooltip Adjustments */
+[data-theme="dark"] .sankey-tooltip {
+  background: var(--bg-secondary);
+  border-color: var(--border-secondary);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="dark"] .sankey-tooltip-color {
+  border-color: var(--border-primary);
+}
+
+/* High Contrast Theme Tooltip Adjustments */
+[data-theme="high-contrast"] .sankey-tooltip {
+  border-width: 2px;
+  border-color: var(--border-primary);
+}
+
+[data-theme="high-contrast"] .sankey-tooltip-label {
+  font-weight: var(--font-weight-bold);
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .sankey-chart-wrapper {
-    border: 2px solid #000;
+    border: 2px solid var(--border-primary);
   }
 }

@@ -1,6 +1,5 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
-import { formatCalendarChartData } from './CalendarChartHandler';
 import '../../shared/ChartButton/ChartButton.css';
 import './CalendarChartComponent.css';
 
@@ -12,8 +11,7 @@ const CalendarChartButton = forwardRef(({
   boxBorderColor = "#cccccc",
   rowCount = 3,
   className = "",
-  onChartDataReady,
-  onError
+  onChartDataReady
 }, ref) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showChart, setShowChart] = useState(false);
@@ -26,33 +24,21 @@ const CalendarChartButton = forwardRef(({
     }
   }));
 
-  const handleCalendarChartClick = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Toggle behavior: if chart is already showing, hide it
-      if (showChart) {
-        setShowChart(false);
-        if (onChartDataReady) {
-          onChartDataReady(null); // Clear the chart
-        }
-        return;
+  const handleCalendarChartClick = () => {
+    setIsLoading(true);
+    
+    // Toggle behavior: if chart is already showing, hide it
+    if (showChart) {
+      setShowChart(false);
+      if (onChartDataReady) {
+        onChartDataReady(null); // Clear the chart
       }
-      
-      if (!dateData || !sectionsData?.dividends) {
-        throw new Error('Missing required data: dateData or dividends');
-      }
-
-      const data = formatCalendarChartData(dateData, sectionsData.dividends);
+    } else {
+      // Show the chart
       setShowChart(true);
-      
-      // Pass the chart data to parent component
       if (onChartDataReady) {
         onChartDataReady({
-          type: 'calendar',
-          data: data,
-          title: 'Monthly Performance Overview',
-          description: 'Combined realized gains from trades and dividend income by month',
+          show: true,
           config: {
             defaultBoxColor,
             boxBorderColor,
@@ -60,14 +46,9 @@ const CalendarChartButton = forwardRef(({
           }
         });
       }
-    } catch (err) {
-      if (onError) {
-        onError(err.message);
-      }
-      console.error('Calendar Chart Error:', err);
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   };
 
 
@@ -107,8 +88,7 @@ CalendarChartButton.propTypes = {
   boxBorderColor: PropTypes.string,
   rowCount: PropTypes.oneOf([1, 2, 3, 4, 6, 12]),
   className: PropTypes.string,
-  onChartDataReady: PropTypes.func,
-  onError: PropTypes.func
+  onChartDataReady: PropTypes.func
 };
 
 CalendarChartButton.defaultProps = {
@@ -117,8 +97,7 @@ CalendarChartButton.defaultProps = {
   boxBorderColor: "#cccccc",
   rowCount: 3,
   className: "",
-  onChartDataReady: () => {},
-  onError: () => {}
+  onChartDataReady: () => {}
 };
 
 export default CalendarChartButton;

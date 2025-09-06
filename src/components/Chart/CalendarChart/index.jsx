@@ -17,15 +17,25 @@ const CalendarChart = ({
 
   const renderBox = (month) => {
     const monthData = data[month] || {};
-    const style = {
-      backgroundColor: monthData.color || defaultBoxColor,
-      borderColor: boxBorderColor,
-    };
+    
+    // Only apply custom colors if they exist, otherwise let CSS theme variables handle it
+    const customStyle = {};
+    if (monthData.color && monthData.color !== defaultBoxColor) {
+      customStyle.backgroundColor = monthData.color;
+    }
+    
+    // Add a data attribute to indicate if this month has data for styling
+    const hasData = monthData.value && monthData.value !== 0;
 
     return (
-      <div key={month} className="calendar-box" style={style}>
+      <div 
+        key={month} 
+        className={`calendar-box ${hasData ? 'has-data' : 'no-data'}`} 
+        style={customStyle}
+        data-month={month}
+      >
         <div className="month-name">{getMonthName(month)}</div>
-        {monthData.value && <div className="value">{monthData.value}</div>}
+        {monthData.value && <div className="value">{monthData.formattedValue}</div>}
         {monthData.caption && <div className="caption">{monthData.caption}</div>}
       </div>
     );

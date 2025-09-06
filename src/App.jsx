@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactJson from 'react-json-view';
 import Parser from './components/Parser';
 import CalendarChartComponent from './components/ChartComponents/CalendarChartComponent';
@@ -11,7 +11,6 @@ import DividendChartComponent from './components/ChartComponents/DividendChartCo
 import CalendarChartButton from './components/ChartComponents/CalendarChartComponent/CalendarChartButton';
 
 import { useTheme } from './hooks/useTheme';
-import './styles/themes.css';
 import './App.css';
 
 function App() {
@@ -70,7 +69,7 @@ function App() {
   };
 
   const handleCalendarChartReady = (chartInfo) => {
-    if (chartInfo) {
+    if (chartInfo && chartInfo.show) {
       // Reset other charts and buttons when calendar chart is activated
       setDividendChart(null);
       setRealizedGainsChart(null);
@@ -79,13 +78,23 @@ function App() {
       setActiveChart("calendar");    
       setCalendarChart(chartInfo);
     } else {
-      // If chartInfo is null, just clear the calendar chart
+      // If chartInfo is null or show is false, clear the calendar chart
       setCalendarChart(null);
       if (activeChart === "calendar") {
         setActiveChart(null);
       }
     }
   };
+
+  const handleCalendarDataReady = useCallback((chartData) => {
+    // This is called from CalendarChartComponent when data is ready
+    if (chartData && activeChart === "calendar") {
+      setCalendarChart(prev => ({
+        ...prev,
+        ...chartData
+      }));
+    }
+  }, [activeChart]);
 
   const handleRealizedGainsChartReady = (chartInfo) => {
     if (chartInfo) {
@@ -168,6 +177,8 @@ function App() {
           defaultBoxColor={calendarChart.config?.defaultBoxColor || "#f5f5f5"}
           boxBorderColor={calendarChart.config?.boxBorderColor || "#cccccc"}
           rowCount={calendarChart.config?.rowCount || 3}
+          showStats={true}
+          onChartDataReady={handleCalendarDataReady}
         />
       )}
 
