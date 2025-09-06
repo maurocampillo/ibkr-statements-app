@@ -117,7 +117,7 @@ function App() {
   };
 
   const handleDarkModeToggle = () => {
-    const newTheme = theme == 'dark' ? 'light' : 'dark';
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
   };
 
@@ -128,11 +128,11 @@ function App() {
         <button
           onClick={handleDarkModeToggle}
           className='dark-mode-toggle'
-          aria-label={`Switch to ${theme == 'dark' ? 'light' : 'dark'} mode`}
-          title={`Switch to ${theme == 'dark' ? 'light' : 'dark'} mode`}
+          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
-          <span className='theme-icon'>{theme == 'dark' ? '☀️' : '🌙'}</span>
-          <span className='theme-text'>{theme == 'dark' ? 'Light' : 'Dark'}</span>
+          <span className='theme-icon'>{theme === 'dark' ? '☀️' : '🌙'}</span>
+          <span className='theme-text'>{theme === 'dark' ? 'Light' : 'Dark'}</span>
         </button>
       </div>
 
@@ -200,7 +200,7 @@ function App() {
           <h3>Parsed Sections Data:</h3>
           <ReactJson
             src={trades}
-            theme={theme == 'dark' ? 'monokai' : 'rjv-default'}
+            theme={theme === 'dark' ? 'monokai' : 'rjv-default'}
             displayDataTypes={false}
             displayObjectSize={false}
             enableClipboard={false}
