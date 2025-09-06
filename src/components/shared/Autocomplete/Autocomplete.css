@@ -283,15 +283,15 @@
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .autocomplete-action-btn {
     flex: 1;
   }
-  
+
   .autocomplete-input {
     font-size: 16px; /* Prevent zoom on iOS */
   }
-  
+
   .selected-values-list {
     gap: 6px;
   }
@@ -302,13 +302,13 @@
     font-size: 12px;
     padding: 4px 6px 4px 10px;
   }
-  
+
   .tag-remove {
     width: 18px;
     height: 18px;
     font-size: 12px;
   }
-  
+
   .autocomplete-dropdown {
     max-height: 150px;
   }
@@ -334,11 +334,11 @@
   .autocomplete-option {
     border: 1px solid #000;
   }
-  
+
   .autocomplete-action-btn {
     border: 2px solid currentColor;
   }
-  
+
   .selected-value-tag {
     border: 2px solid #000;
   }

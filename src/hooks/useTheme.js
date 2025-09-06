@@ -26,7 +26,7 @@ export const useTheme = () => {
       if (savedTheme && ['light', 'dark', 'high-contrast'].includes(savedTheme)) {
         return savedTheme;
       }
-      
+
       // Check system preference for dark mode
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         return 'dark';
@@ -39,28 +39,28 @@ export const useTheme = () => {
   const [theme, dispatch] = useReducer(themeReducer, getInitialTheme());
 
   // Wrapper function for setting theme
-  const setTheme = (newTheme) => {
+  const setTheme = newTheme => {
     dispatch({ type: 'SET_THEME', payload: newTheme });
   };
 
   // Apply theme to document
-  useEffect(() => {    
+  useEffect(() => {
     const root = document.documentElement;
-    
+
     // Add theme switching class to prevent transition flashing
     root.classList.add('theme-switching');
-    
+
     // Remove any existing theme attributes
     root.removeAttribute('data-theme');
-    
+
     // Apply new theme (light theme uses no attribute, others use data-theme)
     if (theme !== 'light') {
       root.setAttribute('data-theme', theme);
     }
-    
+
     // Save to localStorage
     localStorage.setItem('app-theme', theme);
-    
+
     // Remove theme switching class after a brief delay
     setTimeout(() => {
       root.classList.remove('theme-switching');
@@ -71,8 +71,8 @@ export const useTheme = () => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      
-      const handleChange = (e) => {
+
+      const handleChange = e => {
         // Only auto-switch if user hasn't manually set a theme
         const savedTheme = localStorage.getItem('app-theme');
         if (!savedTheme) {
@@ -87,20 +87,24 @@ export const useTheme = () => {
 
   // Theme switching functions
   const switchToLight = () => {
-    console.log('🌞 switchToLight called');    
+    console.log('🌞 switchToLight called');
   };
   const switchToDark = () => {
-    console.log('🌙 switchToDark called');    
+    console.log('🌙 switchToDark called');
   };
   const switchToHighContrast = () => setTheme('high-contrast');
-  
+
   const toggleTheme = () => {
     setTheme(current => {
       switch (current) {
-        case 'light': return 'dark';
-        case 'dark': return 'high-contrast';
-        case 'high-contrast': return 'light';
-        default: return 'light';
+        case 'light':
+          return 'dark';
+        case 'dark':
+          return 'high-contrast';
+        case 'high-contrast':
+          return 'light';
+        default:
+          return 'light';
       }
     });
   };
@@ -108,17 +112,17 @@ export const useTheme = () => {
   const cycleTheme = () => toggleTheme(); // Alias for backwards compatibility
 
   const themeInfo = {
-    current: theme,    
+    current: theme,
     displayName: {
-      'light': 'Light',
-      'dark': 'Dark',
+      light: 'Light',
+      dark: 'Dark',
       'high-contrast': 'High Contrast'
     }[theme]
   };
 
   return {
     theme,
-    themeInfo,    
+    themeInfo,
     toggleTheme,
     cycleTheme,
     setTheme

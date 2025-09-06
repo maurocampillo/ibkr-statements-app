@@ -16,16 +16,19 @@ A comprehensive React component that wraps SankeyChart with integrated business 
 ## Chart Types
 
 ### 1. Overview
+
 - **Purpose**: Total breakdown of interests, dividends, and realized gains
 - **Data Source**: `totals` prop
 - **Description**: High-level financial performance summary
 
 ### 2. By Symbol
+
 - **Purpose**: Performance breakdown by individual symbols
 - **Data Source**: `sectionsData` prop
 - **Description**: Detailed view of each symbol's contribution
 
 ### 3. By Category
+
 - **Purpose**: Performance grouped by category and symbol
 - **Data Source**: `sectionsData` prop
 - **Description**: Hierarchical view showing category → symbol → total flow
@@ -35,26 +38,26 @@ A comprehensive React component that wraps SankeyChart with integrated business 
 ```jsx
 import RealizedGainsComponent from './components/ChartComponents/RealizedGainsComponent';
 
-<RealizedGainsComponent 
+<RealizedGainsComponent
   totals={totals}
   sectionsData={sectionsData}
-  className="custom-realized-gains"
+  className='custom-realized-gains'
   showButtons={true}
   autoShow={false}
-  defaultView="overview"
-/>
+  defaultView='overview'
+/>;
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `totals` | Object | - | Financial totals data for overview chart |
-| `sectionsData` | Object | - | Detailed sections data for symbol/category charts |
-| `className` | String | "" | Additional CSS class for the component |
-| `showButtons` | Boolean | true | Whether to show the chart type buttons |
-| `autoShow` | Boolean | false | Whether to automatically show a chart on mount |
-| `defaultView` | String | "overview" | Default chart type ("overview", "bySymbol", "byCategory") |
+| Prop           | Type    | Default    | Description                                               |
+| -------------- | ------- | ---------- | --------------------------------------------------------- |
+| `totals`       | Object  | -          | Financial totals data for overview chart                  |
+| `sectionsData` | Object  | -          | Detailed sections data for symbol/category charts         |
+| `className`    | String  | ""         | Additional CSS class for the component                    |
+| `showButtons`  | Boolean | true       | Whether to show the chart type buttons                    |
+| `autoShow`     | Boolean | false      | Whether to automatically show a chart on mount            |
+| `defaultView`  | String  | "overview" | Default chart type ("overview", "bySymbol", "byCategory") |
 
 ## Architecture
 
@@ -77,16 +80,19 @@ RealizedGainsComponent/
 ## Chart Data Processing
 
 ### Overview Chart
+
 - Uses `formatRealizedGainsDataForSankeyChart(totals)`
 - Creates nodes for interests, dividends, realized gains, and total
 - Shows flow from individual categories to total
 
 ### By Symbol Chart
+
 - Uses `formatRealizedGainsDataForSankeyChartBySymbol(sectionsData)`
 - Creates nodes for each symbol and total
 - Shows contribution of each symbol to total performance
 
 ### By Category Chart
+
 - Uses `formatRealizedGainsDataForSankeyChartByCategory(sectionsData)`
 - Creates hierarchical flow: symbols → categories → total
 - Most detailed view showing complete data relationships
@@ -102,6 +108,7 @@ RealizedGainsComponent/
 ## Styling Features
 
 The component includes comprehensive CSS with:
+
 - **Modern Gradient Buttons**: Eye-catching call-to-action buttons
 - **Active States**: Visual feedback for selected chart type
 - **Smooth Animations**: Slide-in effects and hover transitions

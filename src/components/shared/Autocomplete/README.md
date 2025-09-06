@@ -5,6 +5,7 @@ A reusable, accessible autocomplete component with multi-selection capabilities,
 ## Features
 
 ### 🔍 **Core Functionality**
+
 - **Real-time Search**: Type to filter options instantly
 - **Multi-selection**: Select multiple options with visual tags
 - **Keyboard Navigation**: Full keyboard accessibility (Arrow keys, Enter, Escape)
@@ -12,6 +13,7 @@ A reusable, accessible autocomplete component with multi-selection capabilities,
 - **Smart Filtering**: Case-insensitive substring matching
 
 ### 🎨 **User Experience**
+
 - **Visual Feedback**: Selected options shown as removable tags
 - **No Results State**: Helpful message when no matches found
 - **Loading States**: Built-in support for loading/disabled states
@@ -19,6 +21,7 @@ A reusable, accessible autocomplete component with multi-selection capabilities,
 - **Smooth Animations**: Tag slide-in animations and transitions
 
 ### ♿ **Accessibility**
+
 - **Keyboard Navigation**: Arrow keys, Enter, Escape support
 - **Focus Management**: Proper focus states and indicators
 - **Screen Reader Support**: ARIA labels and semantic HTML
@@ -33,15 +36,15 @@ import { Autocomplete } from '../../shared';
 
 function MyComponent() {
   const [selectedSources, setSelectedSources] = useState([]);
-  
+
   const options = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry'];
-  
+
   return (
     <Autocomplete
       options={options}
       selectedValues={selectedSources}
       onSelectionChange={setSelectedSources}
-      placeholder="Search fruits..."
+      placeholder='Search fruits...'
     />
   );
 }
@@ -54,42 +57,42 @@ function MyComponent() {
   options={sourceOptions}
   selectedValues={selectedSources}
   onSelectionChange={handleSelectionChange}
-  placeholder="Search and select sources..."
-  className="my-custom-autocomplete"
+  placeholder='Search and select sources...'
+  className='my-custom-autocomplete'
   maxHeight={300}
   showSelectAll={true}
   showClearAll={true}
   disabled={isLoading}
-  noResultsText="No sources found matching"
-  searchIconText="🔍"
+  noResultsText='No sources found matching'
+  searchIconText='🔍'
 />
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `options` | `string[]` | `[]` | Array of available options to select from |
-| `selectedValues` | `string[]` | `[]` | Currently selected values |
-| `onSelectionChange` | `function` | **Required** | Callback when selection changes `(newSelection: string[]) => void` |
-| `placeholder` | `string` | `"Search and select options..."` | Input placeholder text |
-| `className` | `string` | `""` | Additional CSS class for wrapper |
-| `disabled` | `boolean` | `false` | Disable the entire component |
-| `maxHeight` | `number` | `200` | Maximum height of dropdown in pixels |
-| `showSelectAll` | `boolean` | `true` | Show "Select All" button |
-| `showClearAll` | `boolean` | `true` | Show "Clear All" button |
-| `noResultsText` | `string` | `"No options found matching"` | Text shown when no search results |
-| `searchIconText` | `string` | `"🔍"` | Icon/text shown in search input |
+| Prop                | Type       | Default                          | Description                                                        |
+| ------------------- | ---------- | -------------------------------- | ------------------------------------------------------------------ |
+| `options`           | `string[]` | `[]`                             | Array of available options to select from                          |
+| `selectedValues`    | `string[]` | `[]`                             | Currently selected values                                          |
+| `onSelectionChange` | `function` | **Required**                     | Callback when selection changes `(newSelection: string[]) => void` |
+| `placeholder`       | `string`   | `"Search and select options..."` | Input placeholder text                                             |
+| `className`         | `string`   | `""`                             | Additional CSS class for wrapper                                   |
+| `disabled`          | `boolean`  | `false`                          | Disable the entire component                                       |
+| `maxHeight`         | `number`   | `200`                            | Maximum height of dropdown in pixels                               |
+| `showSelectAll`     | `boolean`  | `true`                           | Show "Select All" button                                           |
+| `showClearAll`      | `boolean`  | `true`                           | Show "Clear All" button                                            |
+| `noResultsText`     | `string`   | `"No options found matching"`    | Text shown when no search results                                  |
+| `searchIconText`    | `string`   | `"🔍"`                           | Icon/text shown in search input                                    |
 
 ## Keyboard Shortcuts
 
-| Key | Action |
-|-----|--------|
-| `↓` | Navigate down through options |
-| `↑` | Navigate up through options |
-| `Enter` | Select focused option |
+| Key      | Action                         |
+| -------- | ------------------------------ |
+| `↓`      | Navigate down through options  |
+| `↑`      | Navigate up through options    |
+| `Enter`  | Select focused option          |
 | `Escape` | Close dropdown and clear focus |
-| `Tab` | Standard tab navigation |
+| `Tab`    | Standard tab navigation        |
 
 ## Styling
 
@@ -122,7 +125,7 @@ The component is controlled, meaning the parent component manages the selection 
 ```jsx
 const [selectedValues, setSelectedValues] = useState([]);
 
-const handleSelectionChange = (newSelection) => {
+const handleSelectionChange = newSelection => {
   // Custom logic before updating state
   console.log('Selection changed:', newSelection);
   setSelectedValues(newSelection);
@@ -139,7 +142,7 @@ import { Autocomplete } from '../../shared';
 
 function SankeyChartComponent({ chartData }) {
   const [selectedSources, setSelectedSources] = useState([]);
-  
+
   const sourceOptions = useMemo(() => {
     if (!chartData?.links) return [];
     return [...new Set(chartData.links.map(link => link.source))].sort();
@@ -151,7 +154,7 @@ function SankeyChartComponent({ chartData }) {
         options={sourceOptions}
         selectedValues={selectedSources}
         onSelectionChange={setSelectedSources}
-        placeholder="Filter by source..."
+        placeholder='Filter by source...'
       />
       {/* Chart rendering */}
     </div>
@@ -180,7 +183,7 @@ function DataFilterComponent() {
       selectedValues={selectedValues}
       onSelectionChange={setSelectedValues}
       disabled={loading}
-      placeholder={loading ? "Loading options..." : "Search options..."}
+      placeholder={loading ? 'Loading options...' : 'Search options...'}
     />
   );
 }
@@ -205,23 +208,21 @@ If migrating from a checkbox-based multiselect:
 
 ```jsx
 // Before (Multiselect)
-{options.map(option => (
-  <label key={option}>
-    <input 
-      type="checkbox" 
-      checked={selected.includes(option)}
-      onChange={() => handleToggle(option)}
-    />
-    {option}
-  </label>
-))}
+{
+  options.map(option => (
+    <label key={option}>
+      <input
+        type='checkbox'
+        checked={selected.includes(option)}
+        onChange={() => handleToggle(option)}
+      />
+      {option}
+    </label>
+  ));
+}
 
 // After (Autocomplete)
-<Autocomplete
-  options={options}
-  selectedValues={selected}
-  onSelectionChange={setSelected}
-/>
+<Autocomplete options={options} selectedValues={selected} onSelectionChange={setSelected} />;
 ```
 
 ## Contributing

@@ -6,7 +6,9 @@
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 h1 {
@@ -144,7 +146,7 @@ pre {
 
 /* Ensure button components fit well in the row */
 .chart-buttons-container > * {
-  flex: 1;  
+  flex: 1;
   max-width: 400px;
 }
 
@@ -157,7 +159,7 @@ pre {
     gap: 15px;
     text-align: center;
   }
-  
+
   .app-header h1 {
     text-align: center;
   }

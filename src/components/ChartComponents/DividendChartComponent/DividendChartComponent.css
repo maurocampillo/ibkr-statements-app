@@ -210,7 +210,7 @@
 
 /* Loading Animation */
 .dividend-chart-button:disabled::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 16px;
   height: 16px;
@@ -226,8 +226,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Animation for chart appearance */
@@ -265,27 +269,27 @@
   .dividend-chart-component {
     margin: 16px 0;
   }
-  
+
   .dividend-chart-container {
     padding: 16px;
     margin: 12px 0;
   }
-  
+
   .dividend-chart-header h3 {
     font-size: 20px;
   }
-  
+
   .dividend-chart-button {
     padding: 10px 20px;
     font-size: 13px;
   }
-  
+
   .dividend-stats-preview {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 8px;
     padding: 12px;
   }
-  
+
   .chart-insights {
     gap: 16px;
   }
@@ -297,21 +301,21 @@
     align-items: stretch;
     gap: 8px;
   }
-  
+
   .dividend-chart-button {
     width: 100%;
     text-align: center;
   }
-  
+
   .dividend-chart-close-button {
     align-self: flex-end;
     margin-top: 8px;
   }
-  
+
   .dividend-stats-preview {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .chart-insights {
     flex-direction: column;
     gap: 12px;
@@ -330,7 +334,7 @@
   .dividend-chart-button {
     border: 2px solid currentColor;
   }
-  
+
   .dividend-stats-preview {
     border: 2px solid #000;
   }

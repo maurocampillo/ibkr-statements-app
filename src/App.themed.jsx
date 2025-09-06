@@ -1,13 +1,14 @@
 // Example of how to integrate the theme system into your App.jsx
 import React, { useState } from 'react';
 import ReactJson from 'react-json-view';
-import Parser from './components/Parser';
+
 import CalendarChartComponent from './components/ChartComponents/CalendarChartComponent';
+import CalendarChartButton from './components/ChartComponents/CalendarChartComponent/CalendarChartButton';
+import DividendChartComponent from './components/ChartComponents/DividendChartComponent';
+import DividendChartButton from './components/ChartComponents/DividendChartComponent/DividendChartButton';
 import RealizedGainsComponent from './components/ChartComponents/RealizedGainsComponent';
 import RealizedGainsButtonsGroup from './components/ChartComponents/RealizedGainsComponent/RealizedGainsButtonsGroup';
-import DividendChartButton from './components/ChartComponents/DividendChartComponent/DividendChartButton';
-import DividendChartComponent from './components/ChartComponents/DividendChartComponent';
-import CalendarChartButton from './components/ChartComponents/CalendarChartComponent/CalendarChartButton';
+import Parser from './components/Parser';
 import ThemeSelector from './components/shared/ThemeSelector/ThemeSelector';
 
 // Import theme styles
@@ -22,7 +23,7 @@ function App() {
   const [calendarChart, setCalendarChart] = useState(null);
   const [realizedGainsChart, setRealizedGainsChart] = useState(null);
   const [activeChart, setActiveChart] = useState(null);
-  
+
   // Refs to store reset functions for each button component
   const dividendButtonRef = React.useRef(null);
   const calendarButtonRef = React.useRef(null);
@@ -35,7 +36,7 @@ function App() {
     setActiveChart(null);
   };
 
-  const resetOtherButtons = (excludeButton) => {
+  const resetOtherButtons = excludeButton => {
     // Reset other button states by calling their reset functions
     if (excludeButton !== 'dividend' && dividendButtonRef.current?.resetButton) {
       dividendButtonRef.current.resetButton();
@@ -48,93 +49,93 @@ function App() {
     }
   };
 
-  const handleDividendChartReady = (chartInfo) => {
+  const handleDividendChartReady = chartInfo => {
     if (chartInfo) {
       // Reset other charts and buttons when dividend chart is activated
       setCalendarChart(null);
       setRealizedGainsChart(null);
       resetOtherButtons('dividend');
-      
-      setActiveChart("dividends");    
+
+      setActiveChart('dividends');
       setDividendChart(chartInfo);
     } else {
       // If chartInfo is null, just clear the dividend chart
       setDividendChart(null);
-      if (activeChart === "dividends") {
+      if (activeChart === 'dividends') {
         setActiveChart(null);
       }
     }
   };
 
-  const handleCalendarChartReady = (chartInfo) => {
+  const handleCalendarChartReady = chartInfo => {
     if (chartInfo) {
       // Reset other charts and buttons when calendar chart is activated
       setDividendChart(null);
       setRealizedGainsChart(null);
       resetOtherButtons('calendar');
-      
-      setActiveChart("calendar");    
+
+      setActiveChart('calendar');
       setCalendarChart(chartInfo);
     } else {
       // If chartInfo is null, just clear the calendar chart
       setCalendarChart(null);
-      if (activeChart === "calendar") {
+      if (activeChart === 'calendar') {
         setActiveChart(null);
       }
     }
   };
 
-  const handleRealizedGainsChartReady = (chartInfo) => {
+  const handleRealizedGainsChartReady = chartInfo => {
     if (chartInfo) {
       // Reset other charts and buttons when realized gains chart is activated
       setDividendChart(null);
       setCalendarChart(null);
       resetOtherButtons('realized-gains');
-      
-      setActiveChart("realized-gains");    
+
+      setActiveChart('realized-gains');
       setRealizedGainsChart(chartInfo);
     } else {
       // If chartInfo is null, just clear the realized gains chart
       setRealizedGainsChart(null);
-      if (activeChart === "realized-gains") {
+      if (activeChart === 'realized-gains') {
         setActiveChart(null);
       }
     }
   };
 
   return (
-    <div className="App">
+    <div className='App'>
       {/* App Header with Theme Selector */}
-      <header className="app-header">
+      <header className='app-header'>
         <h1>Client-Side CSV Parser</h1>
-        <ThemeSelector variant="toggle" showLabels={true} />
+        <ThemeSelector variant='toggle' showLabels={true} />
       </header>
-      
+
       <Parser setSectionsData={setSectionsData} setTotals={setTotals} setTrades={setTrades} />
 
       {/* Chart Buttons Row */}
-      <div className="chart-buttons-container">
+      <div className='chart-buttons-container'>
         {/* Extracted Dividend Button */}
-        <DividendChartButton 
+        <DividendChartButton
           ref={dividendButtonRef}
           sectionsData={sectionsData}
           onChartDataReady={handleDividendChartReady}
         />
 
         {/* Extracted Calendar Button */}
-        <CalendarChartButton 
+        <CalendarChartButton
           ref={calendarButtonRef}
           dateData={trades}
           sectionsData={sectionsData}
-          buttonText="Calendar Chart"
-          defaultBoxColor="#f5f5f5"
-          boxBorderColor="#cccccc"
+          buttonText='Calendar Chart'
+          defaultBoxColor='#f5f5f5'
+          boxBorderColor='#cccccc'
           rowCount={3}
           onChartDataReady={handleCalendarChartReady}
-        />      
+        />
 
         {/* Extracted Realized Gains Buttons Group */}
-        <RealizedGainsButtonsGroup 
+        <RealizedGainsButtonsGroup
           ref={realizedGainsButtonRef}
           totals={totals}
           sectionsData={sectionsData}
@@ -143,24 +144,24 @@ function App() {
       </div>
 
       {/* Dividend Chart Display */}
-      {dividendChart && activeChart === 'dividends' && (          
+      {dividendChart && activeChart === 'dividends' && (
         <DividendChartComponent sectionsData={sectionsData} />
       )}
-      
+
       {/* Calendar Chart Display */}
       {calendarChart && activeChart === 'calendar' && (
-        <CalendarChartComponent 
+        <CalendarChartComponent
           dateData={trades}
           sectionsData={sectionsData}
-          defaultBoxColor={calendarChart.config?.defaultBoxColor || "#f5f5f5"}
-          boxBorderColor={calendarChart.config?.boxBorderColor || "#cccccc"}
+          defaultBoxColor={calendarChart.config?.defaultBoxColor || '#f5f5f5'}
+          boxBorderColor={calendarChart.config?.boxBorderColor || '#cccccc'}
           rowCount={calendarChart.config?.rowCount || 3}
         />
       )}
-      
+
       {/* Realized Gains Chart Display */}
       {realizedGainsChart && activeChart === 'realized-gains' && (
-        <RealizedGainsComponent 
+        <RealizedGainsComponent
           chartData={realizedGainsChart.data}
           selectedSources={realizedGainsChart.selectedSources || []}
           activeChart={realizedGainsChart.subType}
@@ -170,11 +171,11 @@ function App() {
       )}
 
       {sectionsData && (
-        <div className="result">
-          <h3>Parsed Sections Data:</h3>          
-          <ReactJson 
+        <div className='result'>
+          <h3>Parsed Sections Data:</h3>
+          <ReactJson
             src={trades}
-            theme="rjv-default" // You can make this dynamic based on current theme
+            theme='rjv-default' // You can make this dynamic based on current theme
             displayDataTypes={false}
             displayObjectSize={false}
             enableClipboard={false}

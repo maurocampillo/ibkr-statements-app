@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Production builds
+build/
+dist/
+
+# Generated files
+coverage/
+
+# Package files
+package-lock.json
+yarn.lock
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

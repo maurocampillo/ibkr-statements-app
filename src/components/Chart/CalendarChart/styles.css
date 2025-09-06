@@ -112,26 +112,26 @@
     padding: 15px;
     gap: 8px;
   }
-  
+
   .calendar-row {
     gap: 8px;
   }
-  
+
   .calendar-box {
     width: 100px;
     height: 100px;
     padding: 8px;
   }
-  
+
   .month-name {
     font-size: var(--font-size-xs);
   }
-  
+
   .value {
     font-size: var(--font-size-md);
   }
-  
+
   .caption {
     font-size: 10px;
   }
-} 
+}

@@ -16,29 +16,29 @@ A self-contained React component that wraps the CalendarChart with integrated bu
 ```jsx
 import CalendarChartComponent from './components/ChartComponents/CalendarChartComponent';
 
-<CalendarChartComponent 
+<CalendarChartComponent
   dateData={trades}
   sectionsData={sectionsData}
-  buttonText="Calendar Chart"
-  defaultBoxColor="#f5f5f5"
-  boxBorderColor="#cccccc"
+  buttonText='Calendar Chart'
+  defaultBoxColor='#f5f5f5'
+  boxBorderColor='#cccccc'
   rowCount={3}
-/>
+/>;
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `dateData` | Array | - | Array of date-based data objects (e.g., trades) |
-| `sectionsData` | Object | - | Object containing dividends array |
-| `buttonText` | String | "Calendar Chart" | Text displayed on the trigger button |
-| `defaultBoxColor` | String | "#f5f5f5" | Default background color for calendar boxes |
-| `boxBorderColor` | String | "#cccccc" | Border color for calendar boxes |
-| `rowCount` | Number | 3 | Number of rows to display (1, 2, 3, 4, 6, or 12) |
-| `className` | String | "" | Additional CSS class for the component |
-| `showButton` | Boolean | true | Whether to show the trigger button |
-| `autoShow` | Boolean | false | Whether to automatically show the chart on mount |
+| Prop              | Type    | Default          | Description                                      |
+| ----------------- | ------- | ---------------- | ------------------------------------------------ |
+| `dateData`        | Array   | -                | Array of date-based data objects (e.g., trades)  |
+| `sectionsData`    | Object  | -                | Object containing dividends array                |
+| `buttonText`      | String  | "Calendar Chart" | Text displayed on the trigger button             |
+| `defaultBoxColor` | String  | "#f5f5f5"        | Default background color for calendar boxes      |
+| `boxBorderColor`  | String  | "#cccccc"        | Border color for calendar boxes                  |
+| `rowCount`        | Number  | 3                | Number of rows to display (1, 2, 3, 4, 6, or 12) |
+| `className`       | String  | ""               | Additional CSS class for the component           |
+| `showButton`      | Boolean | true             | Whether to show the trigger button               |
+| `autoShow`        | Boolean | false            | Whether to automatically show the chart on mount |
 
 ## Architecture
 
@@ -68,6 +68,7 @@ CalendarChartComponent/
 ## Styling
 
 The component includes comprehensive CSS with:
+
 - Modern gradient buttons
 - Smooth animations and transitions
 - Responsive breakpoints

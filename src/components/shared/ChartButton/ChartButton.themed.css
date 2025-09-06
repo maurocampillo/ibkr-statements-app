@@ -111,14 +111,14 @@
   .chart-button-component {
     width: 100%;
   }
-  
+
   .chart-button {
     width: 100%;
     text-align: center;
     min-width: auto;
     justify-content: center;
   }
-  
+
   .button-content {
     align-items: center;
   }
