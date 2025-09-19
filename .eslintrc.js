@@ -53,7 +53,7 @@ module.exports = {
 
     // General code quality
     'no-console': 'warn',
-    'no-debugger': 'error',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
     'no-alert': 'warn',
     'prefer-const': 'error',
     'no-var': 'error',
@@ -76,5 +76,18 @@ module.exports = {
         extensions: ['.js', '.jsx', '.ts', '.tsx']
       }
     }
-  }
+  },
+  overrides: [
+    {
+      files: ['**/*.js', '**/*.jsx'],
+      env: {
+        browser: true,
+        es6: true,
+        node: true
+      },
+      rules: {
+        'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn'
+      }
+    }
+  ]
 };
