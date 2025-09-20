@@ -40,8 +40,8 @@ const RealizedGainsButtonsGroup = forwardRef(
         label: 'Realized Gains Overview',
         description: 'Total breakdown of interests, dividends, and realized gains',
         icon: '📊',
-        handler: () => formatRealizedGainsDataForSankeyChart(totals),
-        requiredData: totals
+        handler: () => formatRealizedGainsDataForSankeyChart(sectionsData),
+        requiredData: sectionsData
       },
       {
         id: 'bySymbol',

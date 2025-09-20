@@ -4,6 +4,23 @@ import utils from '../../../utils/parsing';
 
 // Format data for Nivo Sankey chart
 const formatRealizedGainsDataForSankeyChart = data => {
+  let tradesTotal = 0;
+  let dividendsTotal = 0;
+  let interestsTotal = 0;
+  // Process each trade
+  data.tradesTradeDateBasis.sectionData.forEach(trade => {
+    if (trade.reportdate && trade.fifopnlrealized) {
+      tradesTotal += trade.fifopnlrealized;
+    }
+  });
+
+  // Process each dividend
+  data.statementOfFunds.sectionData.filter(div => div.activitycode == "DIV" || div.activitycode == "PIL").forEach(dividend => {
+    dividendsTotal += dividend.amount;
+  });
+  
+  interestsTotal = data.cashReportTradeDateBasis.sectionData.find((e) => e.currencyprimary === "BASE_SUMMARY")?.brokerinterest;
+
   return {
     nodes: [
       {
@@ -27,25 +44,43 @@ const formatRealizedGainsDataForSankeyChart = data => {
       {
         source: 'interests',
         target: 'total',
-        value: parseFloat(data.interest)
+        value: interestsTotal
       },
       {
         source: 'dividends',
         target: 'total',
-        value: parseFloat(data.dividends)
+        value: dividendsTotal
       },
       {
         source: 'realizedGainsFromTrades',
         target: 'total',
-        value: parseFloat(data.realizedUnrealizedPerformanceSummary.total.realizedTotal)
+        value: tradesTotal
       }
     ]
   };
 };
 
-const formatRealizedGainsDataForSankeyChartBySymbol = sectionsData => {
-  const data = utils.computeRealizedGainsForSankey(sectionsData);
-  const arrayForSankey = _.sortBy(Object.values(data), ['symbol']);
+const formatRealizedGainsDataForSankeyChartBySymbol = data => {
+  let totalBySymbol = {};
+  
+  data.tradesTradeDateBasis.sectionData.forEach(trade => {
+    if (trade.reportdate && trade.fifopnlrealized) {
+      totalBySymbol[trade.underlyingsymbol] = (totalBySymbol[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
+    }
+  });
+
+  // Process each dividend
+  data.statementOfFunds.sectionData.filter(div => div.activitycode == "DIV" || div.activitycode == "PIL").forEach(dividend => {
+    totalBySymbol[dividend.underlyingsymbol] = (totalBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
+  });
+
+  const totalBySymbolArray = Object.entries(totalBySymbol).reduce((acc, [symbol, total]) => {
+    acc[symbol] = { symbol, total };
+    return acc;
+  }, {});
+
+  const arrayForSankey = _.sortBy(Object.values(totalBySymbolArray), ['symbol']);
+
   const nodes = arrayForSankey.map(d => {
     return { id: d.symbol };
   });
@@ -58,43 +93,55 @@ const formatRealizedGainsDataForSankeyChartBySymbol = sectionsData => {
   };
 };
 
-const formatRealizedGainsDataForSankeyChartByCategory = sectionsData => {
-  const { realizedGains, dividends } = utils.computeRealizedGainsByCategoryForSankey(sectionsData);
+const formatRealizedGainsDataForSankeyChartByCategory = data => {  
+  let realizedGainsBySymbol = {};
+  let dividendsBySymbol = {};
 
-  const realizedGainsArrayForSankey = _.sortBy(Object.values(realizedGains), ['symbol']);
+  data.tradesTradeDateBasis.sectionData.forEach(trade => {
+    if (trade.reportdate && trade.fifopnlrealized) {
+      realizedGainsBySymbol[trade.underlyingsymbol] = (realizedGainsBySymbol[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
+    }
+  });
 
-  const dividendsArrayForSankey = _.sortBy(Object.values(dividends), ['symbol']);
+  // Process each dividend
+  data.statementOfFunds.sectionData.filter(div => div.activitycode == "DIV" || div.activitycode == "PIL").forEach(dividend => {
+    dividendsBySymbol[dividend.underlyingsymbol] = (dividendsBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
+  });
 
-  const realizedGainsNodes = realizedGainsArrayForSankey
+  const realizedGainsSymbolsSorted = _.sortBy(Object.keys(realizedGainsBySymbol));
+
+  const dividendsSymbolSorted = _.sortBy(Object.keys(dividendsBySymbol));
+
+  const realizedGainsNodes = Object.keys(realizedGainsBySymbol)
     .map(d => {
-      return { id: d.symbol };
+      return { id: d };
     })
     .concat({ id: 'realizedGains' });
 
-  const realizedNodes = dividendsArrayForSankey
+  const realizedNodes = Object.keys(dividendsBySymbol)
     .map(d => {
-      return { id: d.symbol };
+      return { id: d };
     })
     .concat({ id: 'dividends' });
-
+  
   const totalNodes = [{ id: 'total' }];
-
-  const realizedGainsLinks = realizedGainsArrayForSankey.map(d => {
-    return { source: d.symbol, value: d.total, target: 'realizedGains' };
+    
+  const realizedGainsLinks = realizedGainsSymbolsSorted.map(d => {
+    return { source: d, value: realizedGainsBySymbol[d], target: 'realizedGains' };
   });
-  const dividendsLinks = dividendsArrayForSankey.map(d => {
-    return { source: d.symbol, value: d.total, target: 'dividends' };
+  const dividendsLinks = dividendsSymbolSorted.map(d => {
+    return { source: d, value: dividendsBySymbol[d], target: 'dividends' };
   });
 
   const totalLinks = [
     {
       source: 'realizedGains',
-      value: Object.values(realizedGains).reduce((a, b) => a + b.total, 0),
+      value: Object.values(realizedGainsBySymbol).reduce((a, b) => a + b, 0),
       target: 'total'
     },
     {
       source: 'dividends',
-      value: Object.values(dividends).reduce((a, b) => a + b.total, 0),
+      value: Object.values(dividendsBySymbol).reduce((a, b) => a + b, 0),
       target: 'total'
     }
   ];

@@ -17,10 +17,6 @@ const CalendarChartComponent = ({
 }) => {
   const [formattedCalendarData,  setFormattedCalendarData] = useState(null);
 
-  // Use ref to track if we've already called onChartDataReady for this data
-  const lastChartDataRef = useRef(null);
-  const lastConfigRef = useRef(null);
-
   // Handle chart data ready callback
   useEffect(() => {
     if (!onChartDataReady || !calendarData?.data) {

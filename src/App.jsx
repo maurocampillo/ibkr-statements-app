@@ -167,7 +167,7 @@ function App() {
         <RealizedGainsButtonsGroup
           ref={realizedGainsButtonRef}
           totals={totals}
-          sectionsData={sectionsData}
+          sectionsData={sectionsData2}
           onChartDataReady={handleRealizedGainsChartReady}
         />
       </div>
@@ -198,11 +198,11 @@ function App() {
         />
       )}
 
-      {sectionsData2 && (
+      {realizedGainsChart && (
         <div className='result'>
           <h3>Parsed Sections Data:</h3>
           <ReactJson
-            src={sectionsData2}
+            src={realizedGainsChart?.selectedSources}
             theme={theme === 'dark' ? 'monokai' : 'rjv-default'}
             displayDataTypes={false}
             displayObjectSize={false}
