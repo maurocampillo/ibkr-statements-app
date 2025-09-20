@@ -16,7 +16,7 @@ const DividendChartComponent = ({ dividendData, className = '', showStats = true
     if (!dividendData || !Array.isArray(dividendData)) {
       return null;
     }
-    debugger
+
     const totalAmount = dividendData.reduce((sum, div) => sum + div.amount, 0);
     const uniqueSymbols = new Set(dividendData.map(div => div.underlyingsymbol)).size;    
     const dateRange =

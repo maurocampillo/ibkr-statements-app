@@ -36,7 +36,7 @@ const DividendChartButton = forwardRef(
         ) {
           throw new Error('Missing or empty dividend data');
         }
-        const dividendData = sectionsData.statementOfFunds.sectionData.filter(div => div.activitycode == "DIV" || div.activitycode == "PIL")        
+        const dividendData = sectionsData.statementOfFunds.sectionData.filter(div => div.activitycode == "DIV" || div.activitycode == "PIL")
 
         setShowChart(true);
 

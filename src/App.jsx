@@ -18,7 +18,7 @@ function App() {
   const [trades, setTrades] = useState(null);
   const [totals, setTotals] = useState(null);
   const [dividendData, setDividendData] = useState(null);
-  const [calendarChart, setCalendarChart] = useState(null);
+  const [calendarData, setCalendarData] = useState(null);
   const [realizedGainsChart, setRealizedGainsChart] = useState(null);
   const [activeChart, setActiveChart] = useState(null);
   const [sectionsData2, setSectionsData2] = useState(null);
@@ -35,7 +35,7 @@ function App() {
 
   const resetAllCharts = () => {
     setDividendData(null);
-    setCalendarChart(null);
+    setCalendarData(null);
     setRealizedGainsChart(null);
     setActiveChart(null);
   };
@@ -56,7 +56,7 @@ function App() {
   const handleDividendChartReady = chartInfo => {
     if (chartInfo) {      
       // Reset other charts and buttons when dividend chart is activated
-      setCalendarChart(null);
+      setCalendarData(null);
       setRealizedGainsChart(null);
       resetOtherButtons('dividend');
 
@@ -79,10 +79,10 @@ function App() {
       resetOtherButtons('calendar');
 
       setActiveChart('calendar');
-      setCalendarChart(chartInfo);
+      setCalendarData(chartInfo);
     } else {
       // If chartInfo is null or show is false, clear the calendar chart
-      setCalendarChart(null);
+      setCalendarData(null);
       if (activeChart === 'calendar') {
         setActiveChart(null);
       }
@@ -93,7 +93,7 @@ function App() {
     chartData => {
       // This is called from CalendarChartComponent when data is ready
       if (chartData && activeChart === 'calendar') {
-        setCalendarChart(prev => ({
+        setCalendarData(prev => ({
           ...prev,
           ...chartData
         }));
@@ -106,7 +106,7 @@ function App() {
     if (chartInfo) {
       // Reset other charts and buttons when realized gains chart is activated
       setDividendData(null);
-      setCalendarChart(null);
+      setCalendarData(null);
       resetOtherButtons('realized-gains');
 
       setActiveChart('realized-gains');
@@ -154,9 +154,8 @@ function App() {
 
         {/* Extracted Calendar Button */}
         <CalendarChartButton
-          ref={calendarButtonRef}
-          dateData={trades}
-          sectionsData={sectionsData}
+          ref={calendarButtonRef}          
+          sectionsData={sectionsData2}
           buttonText='Calendar Chart'
           defaultBoxColor='#f5f5f5'
           boxBorderColor='#cccccc'
@@ -177,13 +176,12 @@ function App() {
         <DividendChartComponent dividendData={dividendData} />
       )}
       {/* Calendar Chart Display */}
-      {calendarChart && activeChart === 'calendar' && (
+      {calendarData && activeChart === 'calendar' && (
         <CalendarChartComponent
-          dateData={trades}
-          sectionsData={sectionsData}
-          defaultBoxColor={calendarChart.config?.defaultBoxColor || '#f5f5f5'}
-          boxBorderColor={calendarChart.config?.boxBorderColor || '#cccccc'}
-          rowCount={calendarChart.config?.rowCount || 3}
+          calendarData={calendarData}          
+          defaultBoxColor={calendarData.config?.defaultBoxColor || '#f5f5f5'}
+          boxBorderColor={calendarData.config?.boxBorderColor || '#cccccc'}
+          rowCount={calendarData.config?.rowCount || 3}
           showStats={true}
           onChartDataReady={handleCalendarDataReady}
         />

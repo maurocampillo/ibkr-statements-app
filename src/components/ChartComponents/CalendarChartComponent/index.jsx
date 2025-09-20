@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 
 import CalendarChart from '../../Chart/CalendarChart';
 
@@ -7,8 +7,7 @@ import { formatCalendarChartData } from './CalendarChartHandler';
 import './CalendarChartComponent.css';
 
 const CalendarChartComponent = ({
-  dateData,
-  sectionsData,
+  calendarData,
   defaultBoxColor = '#f5f5f5',
   boxBorderColor = '#cccccc',
   rowCount = 3,
@@ -16,18 +15,7 @@ const CalendarChartComponent = ({
   showStats = true,
   onChartDataReady
 }) => {
-  const chartData = useMemo(() => {
-    if (!dateData || !sectionsData?.dividends) {
-      return null;
-    }
-
-    try {
-      return formatCalendarChartData(dateData, sectionsData.dividends);
-    } catch (err) {
-      console.error('Calendar Chart Error:', err);
-      return null;
-    }
-  }, [dateData, sectionsData?.dividends]);
+  const [formattedCalendarData,  setFormattedCalendarData] = useState(null);
 
   // Use ref to track if we've already called onChartDataReady for this data
   const lastChartDataRef = useRef(null);
@@ -35,41 +23,20 @@ const CalendarChartComponent = ({
 
   // Handle chart data ready callback
   useEffect(() => {
-    if (!onChartDataReady || !chartData) {
+    if (!onChartDataReady || !calendarData?.data) {
       return;
     }
 
-    // Create a stable config object
-    const currentConfig = {
-      defaultBoxColor,
-      boxBorderColor,
-      rowCount
-    };
-
-    // Check if data or config has actually changed
-    const configChanged = JSON.stringify(currentConfig) !== JSON.stringify(lastConfigRef.current);
-    const dataChanged = chartData !== lastChartDataRef.current;
-
-    if (dataChanged || configChanged) {
-      lastChartDataRef.current = chartData;
-      lastConfigRef.current = currentConfig;
-
-      onChartDataReady({
-        type: 'calendar',
-        data: chartData,
-        title: 'Monthly Performance Overview',
-        description: 'Combined realized gains from trades and dividend income by month',
-        config: currentConfig
-      });
-    }
-  }, [chartData, defaultBoxColor, boxBorderColor, rowCount]); // Removed onChartDataReady from deps
+    const formattedData = formatCalendarChartData(calendarData.data.dividends, calendarData.data.trades);
+    setFormattedCalendarData(formattedData)
+  }, [calendarData]); // Removed onChartDataReady from deps
 
   const getCalendarStats = () => {
-    if (!chartData || !Object.values(chartData)) {
+    if (!formattedCalendarData || !Object.values(formattedCalendarData)) {
       return null;
     }
 
-    const months = Object.values(chartData);
+    const months = Object.values(formattedCalendarData);
 
     // 1. Total amount earned by adding amounts for every month
     const totalEarned = months.reduce((sum, monthData) => {
@@ -106,13 +73,13 @@ const CalendarChartComponent = ({
       avgAmountActiveMonths,
       highestMonth,
       lowestMonth,
-      totalMonths: chartData.length,
+      totalMonths: formattedCalendarData.length,
       activeMonths: monthsWithData.length
     };
   };
 
   const stats = getCalendarStats();
-  const hasData = dateData && sectionsData?.dividends;
+  const hasData = !!formattedCalendarData;
 
   return (
     <div className={`calendar-chart-component ${className}`}>
@@ -126,9 +93,9 @@ const CalendarChartComponent = ({
           <div className='no-data-message'>
             <div className='no-data-icon'>📅</div>
             <p>
-              {!dateData && !sectionsData?.dividends
+              {!calendarData?.dividends
                 ? 'No trade or dividend data available. Upload a CSV file to view the calendar chart.'
-                : !dateData
+                : !calendarData.trades
                   ? 'No trade data available for calendar chart.'
                   : 'No dividend data available for calendar chart.'}
             </p>
@@ -136,7 +103,7 @@ const CalendarChartComponent = ({
         ) : (
           <>
             <CalendarChart
-              data={chartData}
+              data={formattedCalendarData}
               defaultBoxColor={defaultBoxColor}
               boxBorderColor={boxBorderColor}
               rowCount={rowCount}
@@ -215,10 +182,10 @@ const CalendarChartComponent = ({
   );
 };
 
-CalendarChartComponent.propTypes = {
-  dateData: PropTypes.array,
-  sectionsData: PropTypes.shape({
-    dividends: PropTypes.array
+CalendarChartComponent.propTypes = {  
+  calendarData: PropTypes.shape({
+    dividends: PropTypes.array,
+    trades: PropTypes.array
   }),
   defaultBoxColor: PropTypes.string,
   boxBorderColor: PropTypes.string,

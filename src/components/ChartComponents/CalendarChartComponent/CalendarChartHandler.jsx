@@ -1,5 +1,5 @@
 // Format data for Calendar chart
-const formatCalendarChartData = (trades, dividends) => {
+const formatCalendarChartData = (dividends, trades) => {
   if (!trades || !trades.length) {
     return {};
   }
@@ -19,25 +19,27 @@ const formatCalendarChartData = (trades, dividends) => {
     11: { value: 0, hasData: false },
     12: { value: 0, hasData: false }
   };
-
+  
   // Process each trade
   trades.forEach(trade => {
-    if (trade.datetime && trade.realizedPl) {
+    if (trade.reportdate && trade.fifopnlrealized) {
       // Extract month from dateTime (format: "2025-01-03, 11:08:24")
-      const month = parseInt(trade.datetime.split('-')[1]);
+      const month = trade.reportdate.getMonth() + 1;
       if (month >= 1 && month <= 12) {
-        result[month].value += trade.realizedPl;
+        result[month].value += trade.fifopnlrealized;
         result[month].hasData = true;
       }
     }
   });
 
+  // Process each dividend
   dividends.forEach(dividend => {
-    const month = parseInt(dividend.date.split('-')[1]);
+    const month = dividend.settledate.getMonth() + 1;
     if (month >= 1 && month <= 12) {
-      result[month].value += parseFloat(dividend.amount);
+      result[month].value += dividend.amount;
     }
   });
+
   // Round values to 2 decimal places
   Object.keys(result).forEach(month => {
     result[month].formattedValue = new Intl.NumberFormat('en-US', {
@@ -49,10 +51,4 @@ const formatCalendarChartData = (trades, dividends) => {
   return result;
 };
 
-const handleCalendarChartClick = (trades, sectionsData, setChartData, setShowChart) => {
-  const data = formatCalendarChartData(trades, sectionsData.dividends);
-  setChartData(data);
-  setShowChart('calendarChart');
-};
-
-export { handleCalendarChartClick, formatCalendarChartData };
+export { formatCalendarChartData };
