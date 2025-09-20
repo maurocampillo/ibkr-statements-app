@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 import CalendarChart from '../../Chart/CalendarChart';
 
@@ -15,7 +15,7 @@ const CalendarChartComponent = ({
   showStats = true,
   onChartDataReady
 }) => {
-  const [formattedCalendarData,  setFormattedCalendarData] = useState(null);
+  const [formattedCalendarData, setFormattedCalendarData] = useState(null);
 
   // Handle chart data ready callback
   useEffect(() => {
@@ -23,8 +23,11 @@ const CalendarChartComponent = ({
       return;
     }
 
-    const formattedData = formatCalendarChartData(calendarData.data.dividends, calendarData.data.trades);
-    setFormattedCalendarData(formattedData)
+    const formattedData = formatCalendarChartData(
+      calendarData.data.dividends,
+      calendarData.data.trades
+    );
+    setFormattedCalendarData(formattedData);
   }, [calendarData]); // Removed onChartDataReady from deps
 
   const getCalendarStats = () => {
@@ -178,7 +181,7 @@ const CalendarChartComponent = ({
   );
 };
 
-CalendarChartComponent.propTypes = {  
+CalendarChartComponent.propTypes = {
   calendarData: PropTypes.shape({
     dividends: PropTypes.array,
     trades: PropTypes.array

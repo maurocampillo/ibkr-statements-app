@@ -19,7 +19,7 @@ const formatCalendarChartData = (dividends, trades) => {
     11: { value: 0, hasData: false },
     12: { value: 0, hasData: false }
   };
-  
+
   // Process each trade
   trades.forEach(trade => {
     if (trade.reportdate && trade.fifopnlrealized) {

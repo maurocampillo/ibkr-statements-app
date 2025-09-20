@@ -4,7 +4,7 @@ import '../../shared/ChartButton/ChartButton.css';
 import './DividendChartComponent.css';
 
 const DividendChartButton = forwardRef(
-  ({ sectionsData, buttonText = 'Dividends', className = '', onChartDataReady, onError }, ref) => {    
+  ({ sectionsData, buttonText = 'Dividends', className = '', onChartDataReady, onError }, ref) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showChart, setShowChart] = useState(false);
 
@@ -36,7 +36,9 @@ const DividendChartButton = forwardRef(
         ) {
           throw new Error('Missing or empty dividend data');
         }
-        const dividendData = sectionsData.statementOfFunds.sectionData.filter(div => div.activitycode == "DIV" || div.activitycode == "PIL")
+        const dividendData = sectionsData.statementOfFunds.sectionData.filter(
+          div => div.activitycode === 'DIV' || div.activitycode === 'PIL'
+        );
 
         setShowChart(true);
 

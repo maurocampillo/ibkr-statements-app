@@ -1,24 +1,26 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
+
 import LineChart from '../../Chart/LineChart';
+
 import { formatDividendDataForLineChart } from './DividendChartHandler';
 import './DividendChartComponent.css';
 
-const DividendChartComponent = ({ dividendData, className = '', showStats = true }) => {  
+const DividendChartComponent = ({ dividendData, className = '', showStats = true }) => {
   const [formattedDividendData, setFormattedDividendData] = useState(null);
-  
+
   useEffect(() => {
     const formatedData = formatDividendDataForLineChart(dividendData);
     setFormattedDividendData(formatedData);
   }, [dividendData]);
-  
+
   const getDividendStats = () => {
     if (!dividendData || !Array.isArray(dividendData)) {
       return null;
     }
 
     const totalAmount = dividendData.reduce((sum, div) => sum + div.amount, 0);
-    const uniqueSymbols = new Set(dividendData.map(div => div.underlyingsymbol)).size;    
+    const uniqueSymbols = new Set(dividendData.map(div => div.underlyingsymbol)).size;
     const dateRange =
       dividendData.length > 0
         ? {
@@ -26,7 +28,7 @@ const DividendChartComponent = ({ dividendData, className = '', showStats = true
             end: new Date(Math.max(...dividendData.map(div => div.settledate)))
           }
         : null;
-    
+
     return {
       totalAmount,
       count: dividendData?.length || 0,

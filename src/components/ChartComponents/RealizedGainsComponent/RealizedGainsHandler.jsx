@@ -1,7 +1,5 @@
 import _ from 'lodash';
 
-import utils from '../../../utils/parsing';
-
 // Format data for Nivo Sankey chart
 const formatRealizedGainsDataForSankeyChart = data => {
   let tradesTotal = 0;
@@ -15,11 +13,15 @@ const formatRealizedGainsDataForSankeyChart = data => {
   });
 
   // Process each dividend
-  data.statementOfFunds.sectionData.filter(div => div.activitycode == "DIV" || div.activitycode == "PIL").forEach(dividend => {
-    dividendsTotal += dividend.amount;
-  });
-  
-  interestsTotal = data.cashReportTradeDateBasis.sectionData.find((e) => e.currencyprimary === "BASE_SUMMARY")?.brokerinterest;
+  data.statementOfFunds.sectionData
+    .filter(div => div.activitycode === 'DIV' || div.activitycode === 'PIL')
+    .forEach(dividend => {
+      dividendsTotal += dividend.amount;
+    });
+
+  interestsTotal = data.cashReportTradeDateBasis.sectionData.find(
+    e => e.currencyprimary === 'BASE_SUMMARY'
+  )?.brokerinterest;
 
   return {
     nodes: [
@@ -61,18 +63,22 @@ const formatRealizedGainsDataForSankeyChart = data => {
 };
 
 const formatRealizedGainsDataForSankeyChartBySymbol = data => {
-  let totalBySymbol = {};
-  
+  const totalBySymbol = {};
+
   data.tradesTradeDateBasis.sectionData.forEach(trade => {
     if (trade.reportdate && trade.fifopnlrealized) {
-      totalBySymbol[trade.underlyingsymbol] = (totalBySymbol[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
+      totalBySymbol[trade.underlyingsymbol] =
+        (totalBySymbol[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
     }
   });
 
   // Process each dividend
-  data.statementOfFunds.sectionData.filter(div => div.activitycode == "DIV" || div.activitycode == "PIL").forEach(dividend => {
-    totalBySymbol[dividend.underlyingsymbol] = (totalBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
-  });
+  data.statementOfFunds.sectionData
+    .filter(div => div.activitycode === 'DIV' || div.activitycode === 'PIL')
+    .forEach(dividend => {
+      totalBySymbol[dividend.underlyingsymbol] =
+        (totalBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
+    });
 
   const totalBySymbolArray = Object.entries(totalBySymbol).reduce((acc, [symbol, total]) => {
     acc[symbol] = { symbol, total };
@@ -93,20 +99,24 @@ const formatRealizedGainsDataForSankeyChartBySymbol = data => {
   };
 };
 
-const formatRealizedGainsDataForSankeyChartByCategory = data => {  
-  let realizedGainsBySymbol = {};
-  let dividendsBySymbol = {};
+const formatRealizedGainsDataForSankeyChartByCategory = data => {
+  const realizedGainsBySymbol = {};
+  const dividendsBySymbol = {};
 
   data.tradesTradeDateBasis.sectionData.forEach(trade => {
     if (trade.reportdate && trade.fifopnlrealized) {
-      realizedGainsBySymbol[trade.underlyingsymbol] = (realizedGainsBySymbol[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
+      realizedGainsBySymbol[trade.underlyingsymbol] =
+        (realizedGainsBySymbol[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
     }
   });
 
   // Process each dividend
-  data.statementOfFunds.sectionData.filter(div => div.activitycode == "DIV" || div.activitycode == "PIL").forEach(dividend => {
-    dividendsBySymbol[dividend.underlyingsymbol] = (dividendsBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
-  });
+  data.statementOfFunds.sectionData
+    .filter(div => div.activitycode === 'DIV' || div.activitycode === 'PIL')
+    .forEach(dividend => {
+      dividendsBySymbol[dividend.underlyingsymbol] =
+        (dividendsBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
+    });
 
   const realizedGainsSymbolsSorted = _.sortBy(Object.keys(realizedGainsBySymbol));
 
@@ -123,9 +133,9 @@ const formatRealizedGainsDataForSankeyChartByCategory = data => {
       return { id: d };
     })
     .concat({ id: 'dividends' });
-  
+
   const totalNodes = [{ id: 'total' }];
-    
+
   const realizedGainsLinks = realizedGainsSymbolsSorted.map(d => {
     return { source: d, value: realizedGainsBySymbol[d], target: 'realizedGains' };
   });

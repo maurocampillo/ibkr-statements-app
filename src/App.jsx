@@ -23,7 +23,7 @@ function App() {
   const [activeChart, setActiveChart] = useState(null);
   const [sectionsData2, setSectionsData2] = useState(null);
   const [trades2, setTrades2] = useState(null);
-  const [totals2, setTotals2] = useState(null);  
+  const [totals2, setTotals2] = useState(null);
 
   // Theme hook for dark mode toggle
   const { setTheme, theme } = useTheme();
@@ -54,7 +54,7 @@ function App() {
   };
 
   const handleDividendChartReady = chartInfo => {
-    if (chartInfo) {      
+    if (chartInfo) {
       // Reset other charts and buttons when dividend chart is activated
       setCalendarData(null);
       setRealizedGainsChart(null);
@@ -141,7 +141,11 @@ function App() {
       </div>
 
       <Parser setSectionsData={setSectionsData} setTotals={setTotals} setTrades={setTrades} />
-      <ParserV2 setSectionsData2={setSectionsData2} setTotals2={setTotals2} setTrades2={setTrades2} />
+      <ParserV2
+        setSectionsData2={setSectionsData2}
+        setTotals2={setTotals2}
+        setTrades2={setTrades2}
+      />
 
       {/* Chart Buttons Row */}
       <div className='chart-buttons-container'>
@@ -154,7 +158,7 @@ function App() {
 
         {/* Extracted Calendar Button */}
         <CalendarChartButton
-          ref={calendarButtonRef}          
+          ref={calendarButtonRef}
           sectionsData={sectionsData2}
           buttonText='Calendar Chart'
           defaultBoxColor='#f5f5f5'
@@ -178,7 +182,7 @@ function App() {
       {/* Calendar Chart Display */}
       {calendarData && activeChart === 'calendar' && (
         <CalendarChartComponent
-          calendarData={calendarData}          
+          calendarData={calendarData}
           defaultBoxColor={calendarData.config?.defaultBoxColor || '#f5f5f5'}
           boxBorderColor={calendarData.config?.boxBorderColor || '#cccccc'}
           rowCount={calendarData.config?.rowCount || 3}
