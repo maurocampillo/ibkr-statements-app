@@ -9,6 +9,7 @@ import DividendChartButton from './components/ChartComponents/DividendChartCompo
 import RealizedGainsComponent from './components/ChartComponents/RealizedGainsComponent';
 import RealizedGainsButtonsGroup from './components/ChartComponents/RealizedGainsComponent/RealizedGainsButtonsGroup';
 import Parser from './components/Parser';
+import ParserV2 from './components/ParserV2';
 import { useTheme } from './hooks/useTheme';
 import './App.css';
 
@@ -16,10 +17,13 @@ function App() {
   const [sectionsData, setSectionsData] = useState(null);
   const [trades, setTrades] = useState(null);
   const [totals, setTotals] = useState(null);
-  const [dividendChart, setDividendChart] = useState(null);
+  const [dividendData, setDividendData] = useState(null);
   const [calendarChart, setCalendarChart] = useState(null);
   const [realizedGainsChart, setRealizedGainsChart] = useState(null);
   const [activeChart, setActiveChart] = useState(null);
+  const [sectionsData2, setSectionsData2] = useState(null);
+  const [trades2, setTrades2] = useState(null);
+  const [totals2, setTotals2] = useState(null);  
 
   // Theme hook for dark mode toggle
   const { setTheme, theme } = useTheme();
@@ -30,7 +34,7 @@ function App() {
   const realizedGainsButtonRef = React.useRef(null);
 
   const resetAllCharts = () => {
-    setDividendChart(null);
+    setDividendData(null);
     setCalendarChart(null);
     setRealizedGainsChart(null);
     setActiveChart(null);
@@ -50,17 +54,17 @@ function App() {
   };
 
   const handleDividendChartReady = chartInfo => {
-    if (chartInfo) {
+    if (chartInfo) {      
       // Reset other charts and buttons when dividend chart is activated
       setCalendarChart(null);
       setRealizedGainsChart(null);
       resetOtherButtons('dividend');
 
       setActiveChart('dividends');
-      setDividendChart(chartInfo);
+      setDividendData(chartInfo.data);
     } else {
       // If chartInfo is null, just clear the dividend chart
-      setDividendChart(null);
+      setDividendData(null);
       if (activeChart === 'dividends') {
         setActiveChart(null);
       }
@@ -70,7 +74,7 @@ function App() {
   const handleCalendarChartReady = chartInfo => {
     if (chartInfo && chartInfo.show) {
       // Reset other charts and buttons when calendar chart is activated
-      setDividendChart(null);
+      setDividendData(null);
       setRealizedGainsChart(null);
       resetOtherButtons('calendar');
 
@@ -101,7 +105,7 @@ function App() {
   const handleRealizedGainsChartReady = chartInfo => {
     if (chartInfo) {
       // Reset other charts and buttons when realized gains chart is activated
-      setDividendChart(null);
+      setDividendData(null);
       setCalendarChart(null);
       resetOtherButtons('realized-gains');
 
@@ -137,13 +141,14 @@ function App() {
       </div>
 
       <Parser setSectionsData={setSectionsData} setTotals={setTotals} setTrades={setTrades} />
+      <ParserV2 setSectionsData2={setSectionsData2} setTotals2={setTotals2} setTrades2={setTrades2} />
 
       {/* Chart Buttons Row */}
       <div className='chart-buttons-container'>
         {/* Extracted Dividend Button */}
         <DividendChartButton
           ref={dividendButtonRef}
-          sectionsData={sectionsData}
+          sectionsData={sectionsData2}
           onChartDataReady={handleDividendChartReady}
         />
 
@@ -168,8 +173,8 @@ function App() {
         />
       </div>
       {/* Dividend Chart Display */}
-      {dividendChart && activeChart === 'dividends' && (
-        <DividendChartComponent sectionsData={sectionsData} />
+      {dividendData && activeChart === 'dividends' && (
+        <DividendChartComponent dividendData={dividendData} />
       )}
       {/* Calendar Chart Display */}
       {calendarChart && activeChart === 'calendar' && (
@@ -195,11 +200,11 @@ function App() {
         />
       )}
 
-      {sectionsData && (
+      {sectionsData2 && (
         <div className='result'>
           <h3>Parsed Sections Data:</h3>
           <ReactJson
-            src={trades}
+            src={sectionsData2}
             theme={theme === 'dark' ? 'monokai' : 'rjv-default'}
             displayDataTypes={false}
             displayObjectSize={false}
