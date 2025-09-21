@@ -176,7 +176,7 @@ const RealizedGainsComponent = ({
     }
 
     const strategy = chartStrategies[activeChart];
-    if (!strategy) {      
+    if (!strategy) {
       return chartData;
     }
 

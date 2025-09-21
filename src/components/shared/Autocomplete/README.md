@@ -126,7 +126,7 @@ The component is controlled, meaning the parent component manages the selection 
 const [selectedValues, setSelectedValues] = useState([]);
 
 const handleSelectionChange = newSelection => {
-  // Custom logic before updating state  
+  // Custom logic before updating state
   setSelectedValues(newSelection);
 };
 ```

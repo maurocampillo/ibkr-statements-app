@@ -128,9 +128,6 @@ const Autocomplete = ({
 
   const isAllSelected = selectedValues.length === options.length && options.length > 0;
   const isNoneSelected = selectedValues.length === 0;
-  if (selectedValues.length > 0) {
-    debugger;
-  }
   return (
     <div className={`autocomplete-wrapper ${className}`}>
       {options.length > 0 && (
