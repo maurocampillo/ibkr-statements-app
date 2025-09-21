@@ -8,22 +8,16 @@ import DividendChartComponent from './components/ChartComponents/DividendChartCo
 import DividendChartButton from './components/ChartComponents/DividendChartComponent/DividendChartButton';
 import RealizedGainsComponent from './components/ChartComponents/RealizedGainsComponent';
 import RealizedGainsButtonsGroup from './components/ChartComponents/RealizedGainsComponent/RealizedGainsButtonsGroup';
-import Parser from './components/Parser';
 import ParserV2 from './components/ParserV2';
 import { useTheme } from './hooks/useTheme';
 import './App.css';
 
 function App() {
-  const [sectionsData, setSectionsData] = useState(null);
-  const [trades, setTrades] = useState(null);
-  const [totals, setTotals] = useState(null);
   const [dividendData, setDividendData] = useState(null);
   const [calendarData, setCalendarData] = useState(null);
   const [realizedGainsChart, setRealizedGainsChart] = useState(null);
   const [activeChart, setActiveChart] = useState(null);
   const [sectionsData2, setSectionsData2] = useState(null);
-  const [trades2, setTrades2] = useState(null);
-  const [totals2, setTotals2] = useState(null);
 
   // Theme hook for dark mode toggle
   const { setTheme, theme } = useTheme();
@@ -32,13 +26,6 @@ function App() {
   const dividendButtonRef = React.useRef(null);
   const calendarButtonRef = React.useRef(null);
   const realizedGainsButtonRef = React.useRef(null);
-
-  const resetAllCharts = () => {
-    setDividendData(null);
-    setCalendarData(null);
-    setRealizedGainsChart(null);
-    setActiveChart(null);
-  };
 
   const resetOtherButtons = excludeButton => {
     // Reset other button states by calling their reset functions
@@ -140,12 +127,7 @@ function App() {
         </button>
       </div>
 
-      <Parser setSectionsData={setSectionsData} setTotals={setTotals} setTrades={setTrades} />
-      <ParserV2
-        setSectionsData2={setSectionsData2}
-        setTotals2={setTotals2}
-        setTrades2={setTrades2}
-      />
+      <ParserV2 setSectionsData2={setSectionsData2} />
 
       {/* Chart Buttons Row */}
       <div className='chart-buttons-container'>
@@ -170,7 +152,6 @@ function App() {
         {/* Extracted Realized Gains Buttons Group */}
         <RealizedGainsButtonsGroup
           ref={realizedGainsButtonRef}
-          totals={totals}
           sectionsData={sectionsData2}
           onChartDataReady={handleRealizedGainsChartReady}
         />
