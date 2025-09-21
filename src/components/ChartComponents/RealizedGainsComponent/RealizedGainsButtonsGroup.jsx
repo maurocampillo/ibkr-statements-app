@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import { useState, forwardRef, useImperativeHandle } from 'react';
 
+import { useDataStore } from '../../../store/DataStoreContext.tsx';
+
 import {
   formatRealizedGainsDataForSankeyChart,
   formatRealizedGainsDataForSankeyChartBySymbol,
@@ -12,7 +14,6 @@ import './RealizedGainsComponent.css';
 const RealizedGainsButtonsGroup = forwardRef(
   (
     {
-      sectionsData,
       className = '',
       defaultView = 'overview', // "overview", "bySymbol", "byCategory"
       onChartDataReady,
@@ -22,6 +23,8 @@ const RealizedGainsButtonsGroup = forwardRef(
   ) => {
     const [activeChart, setActiveChart] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const { getRealizedGains, getDividends, getTrades, getCashReport, isDataLoaded } =
+      useDataStore();
 
     // Expose reset function to parent component
     useImperativeHandle(ref, () => ({
@@ -31,32 +34,58 @@ const RealizedGainsButtonsGroup = forwardRef(
       }
     }));
 
-    const chartTypes = [
-      {
-        id: 'overview',
-        label: 'Realized Gains Overview',
-        description: 'Total breakdown of interests, dividends, and realized gains',
-        icon: '📊',
-        handler: () => formatRealizedGainsDataForSankeyChart(sectionsData),
-        requiredData: sectionsData
-      },
-      {
-        id: 'bySymbol',
-        label: 'Realized Gains by Symbol',
-        description: 'Performance breakdown by individual symbols',
-        icon: '🏷️',
-        handler: () => formatRealizedGainsDataForSankeyChartBySymbol(sectionsData),
-        requiredData: sectionsData
-      },
-      {
-        id: 'byCategory',
-        label: 'Realized Gains by Category',
-        description: 'Performance grouped by category and symbol',
-        icon: '📂',
-        handler: () => formatRealizedGainsDataForSankeyChartByCategory(sectionsData),
-        requiredData: sectionsData
-      }
-    ];
+    const getChartTypes = async () => {
+      // Get data from DataStore for handlers
+      const [realizedGainsData, dividendData, tradesData, cashReportData] = await Promise.all([
+        getRealizedGains(),
+        getDividends(),
+        getTrades(),
+        getCashReport()
+      ]);
+
+      // Create a sectionsData-like object for compatibility with existing handlers
+      const sectionsData = {
+        realizedUnrealizedPerformanceSummaryInBase: {
+          sectionData: realizedGainsData
+        },
+        statementOfFunds: {
+          sectionData: dividendData
+        },
+        tradesTradeDateBasis: {
+          sectionData: tradesData
+        },
+        cashReportTradeDateBasis: {
+          sectionData: cashReportData
+        }
+      };
+
+      return [
+        {
+          id: 'overview',
+          label: 'Realized Gains Overview',
+          description: 'Total breakdown of interests, dividends, and realized gains',
+          icon: '📊',
+          handler: () => formatRealizedGainsDataForSankeyChart(sectionsData),
+          requiredData: sectionsData
+        },
+        {
+          id: 'bySymbol',
+          label: 'Realized Gains by Symbol',
+          description: 'Performance breakdown by individual symbols',
+          icon: '🏷️',
+          handler: () => formatRealizedGainsDataForSankeyChartBySymbol(sectionsData),
+          requiredData: sectionsData
+        },
+        {
+          id: 'byCategory',
+          label: 'Realized Gains by Category',
+          description: 'Performance grouped by category and symbol',
+          icon: '📂',
+          handler: () => formatRealizedGainsDataForSankeyChartByCategory(sectionsData),
+          requiredData: sectionsData
+        }
+      ];
+    };
 
     const handleChartClick = async chartType => {
       try {
@@ -70,6 +99,14 @@ const RealizedGainsButtonsGroup = forwardRef(
           }
           return;
         }
+
+        // Check if data is loaded
+        if (!isDataLoaded) {
+          throw new Error('No data loaded. Please upload a CSV file first.');
+        }
+
+        // Get chart types with data
+        const chartTypes = await getChartTypes();
 
         const chart = chartTypes.find(c => c.id === chartType);
         if (!chart) {
@@ -106,38 +143,48 @@ const RealizedGainsButtonsGroup = forwardRef(
 
     return (
       <>
-        {chartTypes.map(chart => (
-          <div key={chart.id} className={`chart-button-component ${className}`}>
-            <div className='chart-button-controls'>
-              <button
-                onClick={() => handleChartClick(chart.id)}
-                disabled={isLoading || !chart.requiredData}
-                className={`chart-button realized-gains ${activeChart === chart.id ? 'active' : ''} ${!chart.requiredData ? 'disabled' : ''}`}
-                title={
-                  chart.requiredData
-                    ? chart.description
-                    : `Missing required data for ${chart.label}`
-                }
-              >
-                <span className='button-icon'>{chart.icon}</span>
-                <div className='button-content'>
-                  <span className='button-label'>
-                    {isLoading && activeChart === chart.id ? 'Loading...' : chart.label}
-                  </span>
-                </div>
-                {activeChart === chart.id && <span className='active-indicator'>✓</span>}
-              </button>
+        {['overview', 'bySymbol', 'byCategory'].map(chartId => {
+          const chartLabels = {
+            overview: 'Realized Gains Overview',
+            bySymbol: 'Realized Gains by Symbol',
+            byCategory: 'Realized Gains by Category'
+          };
+          const chartIcons = {
+            overview: '📊',
+            bySymbol: '🏷️',
+            byCategory: '📂'
+          };
+          return (
+            <div key={chartId} className={`chart-button-component ${className}`}>
+              <div className='chart-button-controls'>
+                <button
+                  onClick={() => handleChartClick(chartId)}
+                  disabled={isLoading || !isDataLoaded}
+                  className={`chart-button realized-gains ${activeChart === chartId ? 'active' : ''} ${!isDataLoaded ? 'disabled' : ''}`}
+                  title={
+                    isDataLoaded
+                      ? `Visualize ${chartLabels[chartId]}`
+                      : `Missing required data for ${chartLabels[chartId]}`
+                  }
+                >
+                  <span className='button-icon'>{chartIcons[chartId]}</span>
+                  <div className='button-content'>
+                    <span className='button-label'>
+                      {isLoading && activeChart === chartId ? 'Loading...' : chartLabels[chartId]}
+                    </span>
+                  </div>
+                  {activeChart === chartId && <span className='active-indicator'>✓</span>}
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </>
     );
   }
 );
 
 RealizedGainsButtonsGroup.propTypes = {
-  totals: PropTypes.object,
-  sectionsData: PropTypes.object,
   className: PropTypes.string,
   defaultView: PropTypes.oneOf(['overview', 'bySymbol', 'byCategory']),
   onChartDataReady: PropTypes.func,

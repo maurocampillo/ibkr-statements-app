@@ -10,14 +10,14 @@ import RealizedGainsComponent from './components/ChartComponents/RealizedGainsCo
 import RealizedGainsButtonsGroup from './components/ChartComponents/RealizedGainsComponent/RealizedGainsButtonsGroup';
 import ParserV2 from './components/ParserV2';
 import { useTheme } from './hooks/useTheme';
+import { DataStoreProvider } from './store/DataStoreContext.tsx';
 import './App.css';
 
-function App() {
+function AppContent() {
   const [dividendData, setDividendData] = useState(null);
   const [calendarData, setCalendarData] = useState(null);
   const [realizedGainsChart, setRealizedGainsChart] = useState(null);
   const [activeChart, setActiveChart] = useState(null);
-  const [sectionsData2, setSectionsData2] = useState(null);
 
   // Theme hook for dark mode toggle
   const { setTheme, theme } = useTheme();
@@ -127,21 +127,16 @@ function App() {
         </button>
       </div>
 
-      <ParserV2 setSectionsData2={setSectionsData2} />
+      <ParserV2 />
 
       {/* Chart Buttons Row */}
       <div className='chart-buttons-container'>
         {/* Extracted Dividend Button */}
-        <DividendChartButton
-          ref={dividendButtonRef}
-          sectionsData={sectionsData2}
-          onChartDataReady={handleDividendChartReady}
-        />
+        <DividendChartButton ref={dividendButtonRef} onChartDataReady={handleDividendChartReady} />
 
         {/* Extracted Calendar Button */}
         <CalendarChartButton
           ref={calendarButtonRef}
-          sectionsData={sectionsData2}
           buttonText='Calendar Chart'
           defaultBoxColor='#f5f5f5'
           boxBorderColor='#cccccc'
@@ -152,7 +147,6 @@ function App() {
         {/* Extracted Realized Gains Buttons Group */}
         <RealizedGainsButtonsGroup
           ref={realizedGainsButtonRef}
-          sectionsData={sectionsData2}
           onChartDataReady={handleRealizedGainsChartReady}
         />
       </div>
@@ -197,6 +191,15 @@ function App() {
         </div>
       )}
     </div>
+  );
+}
+
+// Main App component with DataStore provider
+function App() {
+  return (
+    <DataStoreProvider>
+      <AppContent />
+    </DataStoreProvider>
   );
 }
 
