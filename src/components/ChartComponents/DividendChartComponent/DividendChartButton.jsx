@@ -1,7 +1,5 @@
 import PropTypes from 'prop-types';
 import { useState, forwardRef, useImperativeHandle } from 'react';
-
-import { formatDividendDataForLineChart } from './DividendChartHandler';
 import '../../shared/ChartButton/ChartButton.css';
 import './DividendChartComponent.css';
 
@@ -32,21 +30,23 @@ const DividendChartButton = forwardRef(
         }
 
         if (
-          !sectionsData?.dividends ||
-          !Array.isArray(sectionsData.dividends) ||
-          sectionsData.dividends.length === 0
+          !sectionsData?.statementOfFunds?.sectionData ||
+          !Array.isArray(sectionsData.statementOfFunds.sectionData) ||
+          sectionsData.statementOfFunds.sectionData.length === 0
         ) {
           throw new Error('Missing or empty dividend data');
         }
+        const dividendData = sectionsData.statementOfFunds.sectionData.filter(
+          div => div.activitycode === 'DIV' || div.activitycode === 'PIL'
+        );
 
-        const data = formatDividendDataForLineChart(sectionsData.dividends);
         setShowChart(true);
 
         // Pass the chart data to parent component
         if (onChartDataReady) {
           onChartDataReady({
             type: 'dividends',
-            data: data,
+            data: dividendData,
             title: 'Dividend Analysis',
             description: 'Track dividend payments and performance over time'
           });
@@ -61,8 +61,7 @@ const DividendChartButton = forwardRef(
       }
     };
 
-    const hasData = sectionsData?.dividends?.length > 0;
-
+    const hasData = sectionsData?.statementOfFunds?.sectionData?.length > 0;
     return (
       <div className={`chart-button-component ${className}`}>
         <div className='chart-button-controls'>

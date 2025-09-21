@@ -2,8 +2,6 @@ import { ResponsiveSankey } from '@nivo/sankey';
 import './SankeyChart.css';
 
 function SankeyChartComponent(props) {
-  console.log(props.chartData);
-
   return (
     <div className='sankey-chart-container'>
       <div className='sankey-chart-wrapper' style={{ height: '800px', width: '100%' }}>

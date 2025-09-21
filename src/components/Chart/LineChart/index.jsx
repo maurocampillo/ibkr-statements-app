@@ -30,7 +30,6 @@ function LineChartComponent(props) {
         legendHover: isDark ? 'rgba(226, 232, 240, 0.1)' : 'rgba(0, 0, 0, 0.06)'
       };
 
-      console.log('LineChart theme update:', { theme, isDark, newColors });
       setThemeColors(newColors);
     };
 

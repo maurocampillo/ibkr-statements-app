@@ -29,13 +29,6 @@ function App() {
   const calendarButtonRef = React.useRef(null);
   const realizedGainsButtonRef = React.useRef(null);
 
-  const resetAllCharts = () => {
-    setDividendChart(null);
-    setCalendarChart(null);
-    setRealizedGainsChart(null);
-    setActiveChart(null);
-  };
-
   const resetOtherButtons = excludeButton => {
     // Reset other button states by calling their reset functions
     if (excludeButton !== 'dividend' && dividendButtonRef.current?.resetButton) {

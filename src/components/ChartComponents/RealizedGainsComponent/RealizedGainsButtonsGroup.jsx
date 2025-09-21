@@ -12,7 +12,6 @@ import './RealizedGainsComponent.css';
 const RealizedGainsButtonsGroup = forwardRef(
   (
     {
-      totals,
       sectionsData,
       className = '',
       defaultView = 'overview', // "overview", "bySymbol", "byCategory"
@@ -22,14 +21,12 @@ const RealizedGainsButtonsGroup = forwardRef(
     ref
   ) => {
     const [activeChart, setActiveChart] = useState(null);
-    const [chartData, setChartData] = useState({});
     const [isLoading, setIsLoading] = useState(false);
 
     // Expose reset function to parent component
     useImperativeHandle(ref, () => ({
       resetButton: () => {
         setActiveChart(null);
-        setChartData({});
         setIsLoading(false);
       }
     }));
@@ -40,8 +37,8 @@ const RealizedGainsButtonsGroup = forwardRef(
         label: 'Realized Gains Overview',
         description: 'Total breakdown of interests, dividends, and realized gains',
         icon: '📊',
-        handler: () => formatRealizedGainsDataForSankeyChart(totals),
-        requiredData: totals
+        handler: () => formatRealizedGainsDataForSankeyChart(sectionsData),
+        requiredData: sectionsData
       },
       {
         id: 'bySymbol',
@@ -68,7 +65,6 @@ const RealizedGainsButtonsGroup = forwardRef(
         // Toggle behavior: if the same chart is already active, hide it
         if (activeChart === chartType) {
           setActiveChart(null);
-          setChartData({});
           if (onChartDataReady) {
             onChartDataReady(null); // Clear the chart
           }
@@ -85,7 +81,6 @@ const RealizedGainsButtonsGroup = forwardRef(
         }
 
         const data = chart.handler();
-        setChartData(data);
         setActiveChart(chartType);
 
         // Pass the chart data to parent component

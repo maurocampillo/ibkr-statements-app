@@ -127,7 +127,6 @@ const [selectedValues, setSelectedValues] = useState([]);
 
 const handleSelectionChange = newSelection => {
   // Custom logic before updating state
-  console.log('Selection changed:', newSelection);
   setSelectedValues(newSelection);
 };
 ```

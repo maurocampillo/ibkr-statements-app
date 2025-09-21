@@ -6,7 +6,6 @@ import './CalendarChartComponent.css';
 const CalendarChartButton = forwardRef(
   (
     {
-      dateData,
       sectionsData,
       buttonText = 'Calendar Chart',
       defaultBoxColor = '#f5f5f5',
@@ -28,6 +27,11 @@ const CalendarChartButton = forwardRef(
       }
     }));
 
+    const dividendData = sectionsData?.statementOfFunds?.sectionData?.filter(
+      div => div.activitycode === 'DIV' || div.activitycode === 'PIL'
+    );
+    const tradesData = sectionsData?.tradesTradeDateBasis?.sectionData;
+
     const handleCalendarChartClick = () => {
       setIsLoading(true);
 
@@ -43,6 +47,10 @@ const CalendarChartButton = forwardRef(
         if (onChartDataReady) {
           onChartDataReady({
             show: true,
+            data: {
+              trades: tradesData,
+              dividends: dividendData
+            },
             config: {
               defaultBoxColor,
               boxBorderColor,
@@ -55,7 +63,7 @@ const CalendarChartButton = forwardRef(
       setIsLoading(false);
     };
 
-    const hasData = dateData && sectionsData?.dividends;
+    const hasData = sectionsData && sectionsData?.statementOfFunds;
 
     return (
       <div className={`chart-button-component ${className}`}>
@@ -83,9 +91,9 @@ const CalendarChartButton = forwardRef(
 );
 
 CalendarChartButton.propTypes = {
-  dateData: PropTypes.array,
   sectionsData: PropTypes.shape({
-    dividends: PropTypes.array
+    statementOfFunds: PropTypes.object,
+    tradesTradeDateBasis: PropTypes.object
   }),
   buttonText: PropTypes.string,
   defaultBoxColor: PropTypes.string,

@@ -48,7 +48,8 @@ const RealizedGainsComponent = ({
     }
 
     const top10Sources = getTopSourcesByAggregatedValue(chartData.links, 10);
-    const top10SourceNames = top10Sources.map(item => item.source);
+    const top10SourceNames = _.sortBy(_.uniq(top10Sources.map(item => item.source)));
+
     setSelectedSources(top10SourceNames);
   };
 
@@ -176,7 +177,6 @@ const RealizedGainsComponent = ({
 
     const strategy = chartStrategies[activeChart];
     if (!strategy) {
-      console.warn(`Unknown chart type: ${activeChart}`);
       return chartData;
     }
 

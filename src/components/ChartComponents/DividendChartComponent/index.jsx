@@ -1,55 +1,44 @@
 import PropTypes from 'prop-types';
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 import LineChart from '../../Chart/LineChart';
 
 import { formatDividendDataForLineChart } from './DividendChartHandler';
 import './DividendChartComponent.css';
 
-const DividendChartComponent = ({ sectionsData, className = '', showStats = true }) => {
-  const chartData = useMemo(() => {
-    if (
-      !sectionsData?.dividends ||
-      !Array.isArray(sectionsData.dividends) ||
-      sectionsData.dividends.length === 0
-    ) {
-      return null;
-    }
+const DividendChartComponent = ({ dividendData, className = '', showStats = true }) => {
+  const [formattedDividendData, setFormattedDividendData] = useState(null);
 
-    try {
-      return formatDividendDataForLineChart(sectionsData.dividends);
-    } catch (err) {
-      console.error('Dividend Chart Error:', err);
-      return null;
-    }
-  }, [sectionsData?.dividends]);
+  useEffect(() => {
+    const formatedData = formatDividendDataForLineChart(dividendData);
+    setFormattedDividendData(formatedData);
+  }, [dividendData]);
 
   const getDividendStats = () => {
-    if (!sectionsData?.dividends || !Array.isArray(sectionsData.dividends)) {
+    if (!dividendData || !Array.isArray(dividendData)) {
       return null;
     }
 
-    const dividends = sectionsData.dividends;
-    const totalAmount = dividends.reduce((sum, div) => sum + parseFloat(div.amount || 0), 0);
-    const uniqueSymbols = new Set(dividends.map(div => div.symbol)).size;
+    const totalAmount = dividendData.reduce((sum, div) => sum + div.amount, 0);
+    const uniqueSymbols = new Set(dividendData.map(div => div.underlyingsymbol)).size;
     const dateRange =
-      dividends.length > 0
+      dividendData.length > 0
         ? {
-            start: new Date(Math.min(...dividends.map(div => new Date(div.date)))),
-            end: new Date(Math.max(...dividends.map(div => new Date(div.date))))
+            start: new Date(Math.min(...dividendData.map(div => div.settledate))),
+            end: new Date(Math.max(...dividendData.map(div => div.settledate)))
           }
         : null;
 
     return {
       totalAmount,
-      count: dividends.length,
+      count: dividendData?.length || 0,
       uniqueSymbols,
       dateRange
     };
   };
 
   const stats = getDividendStats();
-  const hasData = sectionsData?.dividends?.length > 0;
+  const hasData = dividendData?.length > 0;
 
   return (
     <div className={`dividend-chart-component ${className}`}>
@@ -70,7 +59,7 @@ const DividendChartComponent = ({ sectionsData, className = '', showStats = true
         ) : (
           <>
             <div className='dividend-chart-wrapper'>
-              <LineChart chartData={chartData} />
+              <LineChart chartData={formattedDividendData} />
             </div>
 
             {stats && showStats && (

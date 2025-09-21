@@ -8,18 +8,16 @@ import DividendChartComponent from './components/ChartComponents/DividendChartCo
 import DividendChartButton from './components/ChartComponents/DividendChartComponent/DividendChartButton';
 import RealizedGainsComponent from './components/ChartComponents/RealizedGainsComponent';
 import RealizedGainsButtonsGroup from './components/ChartComponents/RealizedGainsComponent/RealizedGainsButtonsGroup';
-import Parser from './components/Parser';
+import ParserV2 from './components/ParserV2';
 import { useTheme } from './hooks/useTheme';
 import './App.css';
 
 function App() {
-  const [sectionsData, setSectionsData] = useState(null);
-  const [trades, setTrades] = useState(null);
-  const [totals, setTotals] = useState(null);
-  const [dividendChart, setDividendChart] = useState(null);
-  const [calendarChart, setCalendarChart] = useState(null);
+  const [dividendData, setDividendData] = useState(null);
+  const [calendarData, setCalendarData] = useState(null);
   const [realizedGainsChart, setRealizedGainsChart] = useState(null);
   const [activeChart, setActiveChart] = useState(null);
+  const [sectionsData2, setSectionsData2] = useState(null);
 
   // Theme hook for dark mode toggle
   const { setTheme, theme } = useTheme();
@@ -28,13 +26,6 @@ function App() {
   const dividendButtonRef = React.useRef(null);
   const calendarButtonRef = React.useRef(null);
   const realizedGainsButtonRef = React.useRef(null);
-
-  const resetAllCharts = () => {
-    setDividendChart(null);
-    setCalendarChart(null);
-    setRealizedGainsChart(null);
-    setActiveChart(null);
-  };
 
   const resetOtherButtons = excludeButton => {
     // Reset other button states by calling their reset functions
@@ -52,15 +43,15 @@ function App() {
   const handleDividendChartReady = chartInfo => {
     if (chartInfo) {
       // Reset other charts and buttons when dividend chart is activated
-      setCalendarChart(null);
+      setCalendarData(null);
       setRealizedGainsChart(null);
       resetOtherButtons('dividend');
 
       setActiveChart('dividends');
-      setDividendChart(chartInfo);
+      setDividendData(chartInfo.data);
     } else {
       // If chartInfo is null, just clear the dividend chart
-      setDividendChart(null);
+      setDividendData(null);
       if (activeChart === 'dividends') {
         setActiveChart(null);
       }
@@ -70,15 +61,15 @@ function App() {
   const handleCalendarChartReady = chartInfo => {
     if (chartInfo && chartInfo.show) {
       // Reset other charts and buttons when calendar chart is activated
-      setDividendChart(null);
+      setDividendData(null);
       setRealizedGainsChart(null);
       resetOtherButtons('calendar');
 
       setActiveChart('calendar');
-      setCalendarChart(chartInfo);
+      setCalendarData(chartInfo);
     } else {
       // If chartInfo is null or show is false, clear the calendar chart
-      setCalendarChart(null);
+      setCalendarData(null);
       if (activeChart === 'calendar') {
         setActiveChart(null);
       }
@@ -89,7 +80,7 @@ function App() {
     chartData => {
       // This is called from CalendarChartComponent when data is ready
       if (chartData && activeChart === 'calendar') {
-        setCalendarChart(prev => ({
+        setCalendarData(prev => ({
           ...prev,
           ...chartData
         }));
@@ -101,8 +92,8 @@ function App() {
   const handleRealizedGainsChartReady = chartInfo => {
     if (chartInfo) {
       // Reset other charts and buttons when realized gains chart is activated
-      setDividendChart(null);
-      setCalendarChart(null);
+      setDividendData(null);
+      setCalendarData(null);
       resetOtherButtons('realized-gains');
 
       setActiveChart('realized-gains');
@@ -136,22 +127,21 @@ function App() {
         </button>
       </div>
 
-      <Parser setSectionsData={setSectionsData} setTotals={setTotals} setTrades={setTrades} />
+      <ParserV2 setSectionsData2={setSectionsData2} />
 
       {/* Chart Buttons Row */}
       <div className='chart-buttons-container'>
         {/* Extracted Dividend Button */}
         <DividendChartButton
           ref={dividendButtonRef}
-          sectionsData={sectionsData}
+          sectionsData={sectionsData2}
           onChartDataReady={handleDividendChartReady}
         />
 
         {/* Extracted Calendar Button */}
         <CalendarChartButton
           ref={calendarButtonRef}
-          dateData={trades}
-          sectionsData={sectionsData}
+          sectionsData={sectionsData2}
           buttonText='Calendar Chart'
           defaultBoxColor='#f5f5f5'
           boxBorderColor='#cccccc'
@@ -162,23 +152,21 @@ function App() {
         {/* Extracted Realized Gains Buttons Group */}
         <RealizedGainsButtonsGroup
           ref={realizedGainsButtonRef}
-          totals={totals}
-          sectionsData={sectionsData}
+          sectionsData={sectionsData2}
           onChartDataReady={handleRealizedGainsChartReady}
         />
       </div>
       {/* Dividend Chart Display */}
-      {dividendChart && activeChart === 'dividends' && (
-        <DividendChartComponent sectionsData={sectionsData} />
+      {dividendData && activeChart === 'dividends' && (
+        <DividendChartComponent dividendData={dividendData} />
       )}
       {/* Calendar Chart Display */}
-      {calendarChart && activeChart === 'calendar' && (
+      {calendarData && activeChart === 'calendar' && (
         <CalendarChartComponent
-          dateData={trades}
-          sectionsData={sectionsData}
-          defaultBoxColor={calendarChart.config?.defaultBoxColor || '#f5f5f5'}
-          boxBorderColor={calendarChart.config?.boxBorderColor || '#cccccc'}
-          rowCount={calendarChart.config?.rowCount || 3}
+          calendarData={calendarData}
+          defaultBoxColor={calendarData.config?.defaultBoxColor || '#f5f5f5'}
+          boxBorderColor={calendarData.config?.boxBorderColor || '#cccccc'}
+          rowCount={calendarData.config?.rowCount || 3}
           showStats={true}
           onChartDataReady={handleCalendarDataReady}
         />
@@ -195,11 +183,11 @@ function App() {
         />
       )}
 
-      {sectionsData && (
+      {realizedGainsChart && (
         <div className='result'>
           <h3>Parsed Sections Data:</h3>
           <ReactJson
-            src={trades}
+            src={realizedGainsChart?.selectedSources}
             theme={theme === 'dark' ? 'monokai' : 'rjv-default'}
             displayDataTypes={false}
             displayObjectSize={false}
