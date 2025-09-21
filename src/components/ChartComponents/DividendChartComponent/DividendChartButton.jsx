@@ -1,12 +1,15 @@
 import PropTypes from 'prop-types';
 import { useState, forwardRef, useImperativeHandle } from 'react';
+
+import { useDataStore } from '../../../store/DataStoreContext.tsx';
 import '../../shared/ChartButton/ChartButton.css';
 import './DividendChartComponent.css';
 
 const DividendChartButton = forwardRef(
-  ({ sectionsData, buttonText = 'Dividends', className = '', onChartDataReady, onError }, ref) => {
+  ({ buttonText = 'Dividends', className = '', onChartDataReady, onError }, ref) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showChart, setShowChart] = useState(false);
+    const { getDividends, isDataLoaded } = useDataStore();
 
     // Expose reset function to parent component
     useImperativeHandle(ref, () => ({
@@ -29,39 +32,38 @@ const DividendChartButton = forwardRef(
           return;
         }
 
-        if (
-          !sectionsData?.statementOfFunds?.sectionData ||
-          !Array.isArray(sectionsData.statementOfFunds.sectionData) ||
-          sectionsData.statementOfFunds.sectionData.length === 0
-        ) {
-          throw new Error('Missing or empty dividend data');
+        // Check if data is loaded
+        if (!isDataLoaded) {
+          throw new Error('No data loaded. Please upload a CSV file first.');
         }
-        const dividendData = sectionsData.statementOfFunds.sectionData.filter(
-          div => div.activitycode === 'DIV' || div.activitycode === 'PIL'
-        );
+
+        // Get dividend data from DataStore
+        const dividendData = await getDividends();
+
+        if (!dividendData || dividendData.length === 0) {
+          throw new Error('No dividend data found in the uploaded file.');
+        }
 
         setShowChart(true);
 
         // Pass the chart data to parent component
         if (onChartDataReady) {
           onChartDataReady({
-            type: 'dividends',
             data: dividendData,
-            title: 'Dividend Analysis',
-            description: 'Track dividend payments and performance over time'
+            type: 'dividends'
           });
         }
-      } catch (err) {
+      } catch (error) {
+        console.error('Error processing dividend data:', error);
         if (onError) {
-          onError(err.message);
+          onError(error.message);
         }
-        console.error('Dividend Chart Error:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    const hasData = sectionsData?.statementOfFunds?.sectionData?.length > 0;
+    const hasData = isDataLoaded;
     return (
       <div className={`chart-button-component ${className}`}>
         <div className='chart-button-controls'>
@@ -84,9 +86,6 @@ const DividendChartButton = forwardRef(
 );
 
 DividendChartButton.propTypes = {
-  sectionsData: PropTypes.shape({
-    dividends: PropTypes.array
-  }),
   buttonText: PropTypes.string,
   className: PropTypes.string,
   onChartDataReady: PropTypes.func,

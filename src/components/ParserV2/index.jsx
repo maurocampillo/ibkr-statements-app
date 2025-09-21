@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import CSVReader from 'react-csv-reader';
 
-function ParserV2(props) {
+import { useDataStore } from '../../store/DataStoreContext.tsx';
+
+function ParserV2() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { setRawData } = useDataStore();
 
   // Utility function to convert string to camelCase
   const toCamelCase = str => {
@@ -146,10 +149,8 @@ function ParserV2(props) {
       // Parse the multi-section CSV
       const parsedSections = parseCSVSections(data);
 
-      // Pass the parsed data to the parent component
-      if (props.setSectionsData2) {
-        props.setSectionsData2(parsedSections);
-      }
+      // Store the parsed data in DataStore
+      setRawData(parsedSections);
     } catch (err) {
       setError('Failed to parse CSV file. Please check the file format.');
     } finally {
