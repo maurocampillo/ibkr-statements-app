@@ -258,14 +258,15 @@ export const DataStoreProvider: React.FC<DataStoreProviderProps> = ({ children }
   // Context value
   const contextValue: DataStoreContextType = {
     // State
+    rawData: state.rawData,
     isLoading: state.isLoading,
     error: state.error,
-    isDataLoaded: !!state.rawData,
     lastUpdated: state.lastUpdated,
 
     // Data Management
     setRawData,
     clearData,
+    isDataLoaded: () => !!state.rawData,
 
     // Data Retrieval
     getDividends,
