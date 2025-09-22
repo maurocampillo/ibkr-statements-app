@@ -318,12 +318,7 @@ describe('DataStoreContext', () => {
         wrapper: TestWrapper
       });
 
-      try {
-        await result.current.getDividends();
-        fail('Expected error to be thrown');
-      } catch (error) {
-        expect(error.message).toBe('No data loaded');
-      }
+      await expect(result.current.getDividends()).rejects.toThrow('No data loaded');
     });
 
     it('should return dividend data from statementOfFunds section', async () => {
@@ -411,12 +406,7 @@ describe('DataStoreContext', () => {
         wrapper: TestWrapper
       });
 
-      try {
-        await result.current.getTrades();
-        fail('Expected error to be thrown');
-      } catch (error) {
-        expect(error.message).toBe('No data loaded');
-      }
+      await expect(result.current.getTrades()).rejects.toThrow('No data loaded');
     });
 
     it('should return trade data from tradesTradeDateBasis section', async () => {
@@ -565,11 +555,7 @@ describe('DataStoreContext', () => {
         wrapper: TestWrapper
       });
 
-      try {
-        await result.current.getDividends();
-      } catch (error) {
-        expect(error.message).toBe('No data loaded');
-      }
+      await expect(result.current.getDividends()).rejects.toThrow('No data loaded');
     });
   });
 
