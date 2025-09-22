@@ -44,19 +44,11 @@ const RealizedGainsButtonsGroup = forwardRef(
       ]);
 
       // Create a sectionsData-like object for compatibility with existing handlers
-      const sectionsData = {
-        realizedUnrealizedPerformanceSummaryInBase: {
-          sectionData: realizedGainsData
-        },
-        statementOfFunds: {
-          sectionData: dividendData
-        },
-        tradesTradeDateBasis: {
-          sectionData: tradesData
-        },
-        cashReportTradeDateBasis: {
-          sectionData: cashReportData
-        }
+      const chartRawData = {
+        realizedGains: realizedGainsData,
+        dividends: dividendData,
+        trades: tradesData,
+        cashReport: cashReportData
       };
 
       return [
@@ -65,24 +57,24 @@ const RealizedGainsButtonsGroup = forwardRef(
           label: 'Realized Gains Overview',
           description: 'Total breakdown of interests, dividends, and realized gains',
           icon: '📊',
-          handler: () => formatRealizedGainsDataForSankeyChart(sectionsData),
-          requiredData: sectionsData
+          handler: () => formatRealizedGainsDataForSankeyChart(chartRawData),
+          requiredData: chartRawData
         },
         {
           id: 'bySymbol',
           label: 'Realized Gains by Symbol',
           description: 'Performance breakdown by individual symbols',
           icon: '🏷️',
-          handler: () => formatRealizedGainsDataForSankeyChartBySymbol(sectionsData),
-          requiredData: sectionsData
+          handler: () => formatRealizedGainsDataForSankeyChartBySymbol(chartRawData),
+          requiredData: chartRawData
         },
         {
           id: 'byCategory',
           label: 'Realized Gains by Category',
           description: 'Performance grouped by category and symbol',
           icon: '📂',
-          handler: () => formatRealizedGainsDataForSankeyChartByCategory(sectionsData),
-          requiredData: sectionsData
+          handler: () => formatRealizedGainsDataForSankeyChartByCategory(chartRawData),
+          requiredData: chartRawData
         }
       ];
     };

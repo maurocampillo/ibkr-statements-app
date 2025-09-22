@@ -6,22 +6,18 @@ const formatRealizedGainsDataForSankeyChart = data => {
   let dividendsTotal = 0;
   let interestsTotal = 0;
   // Process each trade
-  data.tradesTradeDateBasis.sectionData.forEach(trade => {
+  data.trades.forEach(trade => {
     if (trade.reportdate && trade.fifopnlrealized) {
       tradesTotal += trade.fifopnlrealized;
     }
   });
 
   // Process each dividend
-  data.statementOfFunds.sectionData
-    .filter(div => div.activitycode === 'DIV' || div.activitycode === 'PIL')
-    .forEach(dividend => {
-      dividendsTotal += dividend.amount;
-    });
+  data.dividends.forEach(dividend => {
+    dividendsTotal += dividend.amount;
+  });
 
-  interestsTotal = data.cashReportTradeDateBasis.sectionData.find(
-    e => e.currencyprimary === 'BASE_SUMMARY'
-  )?.brokerinterest;
+  interestsTotal = data.cashReport.find(e => e.currencyprimary === 'BASE_SUMMARY')?.brokerinterest;
 
   return {
     nodes: [
@@ -65,7 +61,7 @@ const formatRealizedGainsDataForSankeyChart = data => {
 const formatRealizedGainsDataForSankeyChartBySymbol = data => {
   const totalBySymbol = {};
 
-  data.tradesTradeDateBasis.sectionData.forEach(trade => {
+  data.trades.forEach(trade => {
     if (trade.reportdate && trade.fifopnlrealized) {
       totalBySymbol[trade.underlyingsymbol] =
         (totalBySymbol[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
@@ -73,12 +69,10 @@ const formatRealizedGainsDataForSankeyChartBySymbol = data => {
   });
 
   // Process each dividend
-  data.statementOfFunds.sectionData
-    .filter(div => div.activitycode === 'DIV' || div.activitycode === 'PIL')
-    .forEach(dividend => {
-      totalBySymbol[dividend.underlyingsymbol] =
-        (totalBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
-    });
+  data.dividends.forEach(dividend => {
+    totalBySymbol[dividend.underlyingsymbol] =
+      (totalBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
+  });
 
   const totalBySymbolArray = Object.entries(totalBySymbol).reduce((acc, [symbol, total]) => {
     acc[symbol] = { symbol, total };
@@ -103,7 +97,7 @@ const formatRealizedGainsDataForSankeyChartByCategory = data => {
   const realizedGainsBySymbol = {};
   const dividendsBySymbol = {};
 
-  data.tradesTradeDateBasis.sectionData.forEach(trade => {
+  data.trades.forEach(trade => {
     if (trade.reportdate && trade.fifopnlrealized) {
       realizedGainsBySymbol[trade.underlyingsymbol] =
         (realizedGainsBySymbol[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
@@ -111,12 +105,10 @@ const formatRealizedGainsDataForSankeyChartByCategory = data => {
   });
 
   // Process each dividend
-  data.statementOfFunds.sectionData
-    .filter(div => div.activitycode === 'DIV' || div.activitycode === 'PIL')
-    .forEach(dividend => {
-      dividendsBySymbol[dividend.underlyingsymbol] =
-        (dividendsBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
-    });
+  data.dividends.forEach(dividend => {
+    dividendsBySymbol[dividend.underlyingsymbol] =
+      (dividendsBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
+  });
 
   const realizedGainsSymbolsSorted = _.sortBy(Object.keys(realizedGainsBySymbol));
 
@@ -164,21 +156,21 @@ const formatRealizedGainsDataForSankeyChartByCategory = data => {
   return res;
 };
 
-const handleRealizedGainsClick = (totals, setChartData, setShowChart) => {
-  const data = formatRealizedGainsDataForSankeyChart(totals);
-  setChartData(data);
+const handleRealizedGainsClick = (chartRawData, setChartData, setShowChart) => {
+  const formattedData = formatRealizedGainsDataForSankeyChart(chartRawData);
+  setChartData(formattedData);
   setShowChart('realizedGainsSankeyCart');
 };
 
-const handleRealizedGainsBySymbolClick = (sectionsData, setChartData, setShowChart) => {
-  const data = formatRealizedGainsDataForSankeyChartBySymbol(sectionsData);
-  setChartData(data);
+const handleRealizedGainsBySymbolClick = (chartRawData, setChartData, setShowChart) => {
+  const formattedData = formatRealizedGainsDataForSankeyChartBySymbol(chartRawData);
+  setChartData(formattedData);
   setShowChart('realizedGainsSankeyCartBySymbol');
 };
 
-const handleRealizedGainsByCategoryClick = (sectionsData, setChartData, setShowChart) => {
-  const data = formatRealizedGainsDataForSankeyChartByCategory(sectionsData);
-  setChartData(data);
+const handleRealizedGainsByCategoryClick = (chartRawData, setChartData, setShowChart) => {
+  const formattedData = formatRealizedGainsDataForSankeyChartByCategory(chartRawData);
+  setChartData(formattedData);
   setShowChart('realizedGainsSankeyCartByCategory');
 };
 
