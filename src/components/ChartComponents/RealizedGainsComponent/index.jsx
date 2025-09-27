@@ -5,7 +5,7 @@ import { useMemo, useState, useEffect } from 'react';
 import SankeyChart from '../../Chart/SankeyChart';
 import { Autocomplete } from '../../shared';
 
-import { getTopSourcesByAggregatedValue } from './RealizedGainsHandler';
+import { getTopSourcesByAggregatedValue, formatRealizedGainsDataForSankeyChartByCategoryTop10 } from './RealizedGainsHandler';
 import './RealizedGainsComponent.css';
 
 const RealizedGainsComponent = ({
@@ -105,15 +105,21 @@ const RealizedGainsComponent = ({
       links.filter(e => e.target === 'dividends'),
       'value'
     );
+    const optionsTotal = _.sumBy(
+      links.filter(e => e.target === 'options'),
+      'value'
+    );
+
 
     const aggregatedNodes = _.uniqBy(
-      nodes.concat([{ id: 'realizedGains' }, { id: 'dividends' }, { id: 'total' }]),
+      nodes.concat([{ id: 'realizedGains' }, { id: 'dividends' }, { id: 'options' }, { id: 'total' }]),
       'id'
     );
 
     const aggregatedLinks = links.concat([
       { source: 'realizedGains', target: 'total', value: realizedGainsTotal },
-      { source: 'dividends', target: 'total', value: dividendsTotal }
+      { source: 'dividends', target: 'total', value: dividendsTotal },
+      { source: 'options', target: 'total', value: optionsTotal }
     ]);
 
     return {
