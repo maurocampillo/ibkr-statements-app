@@ -266,7 +266,7 @@ export const DataStoreProvider: React.FC<DataStoreProviderProps> = ({ children }
     // Data Management
     setRawData,
     clearData,
-    isDataLoaded: () => !!state.rawData,
+    isDataLoaded: !!state.rawData,
 
     // Data Retrieval
     getDividends,

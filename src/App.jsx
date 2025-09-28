@@ -1,6 +1,5 @@
 // src/App.js
 import React, { useState, useCallback } from 'react';
-import ReactJson from 'react-json-view';
 
 import CalendarChartComponent from './components/ChartComponents/CalendarChartComponent';
 import CalendarChartButton from './components/ChartComponents/CalendarChartComponent/CalendarChartButton';
@@ -10,7 +9,7 @@ import RealizedGainsComponent from './components/ChartComponents/RealizedGainsCo
 import RealizedGainsButtonsGroup from './components/ChartComponents/RealizedGainsComponent/RealizedGainsButtonsGroup';
 import ParserV2 from './components/ParserV2';
 import { useTheme } from './hooks/useTheme';
-import { DataStoreProvider } from './store/DataStoreContext.tsx';
+import { DataStoreProvider, useDataStore } from './store/DataStoreContext.tsx';
 import './App.css';
 
 function AppContent() {
@@ -18,6 +17,9 @@ function AppContent() {
   const [calendarData, setCalendarData] = useState(null);
   const [realizedGainsChart, setRealizedGainsChart] = useState(null);
   const [activeChart, setActiveChart] = useState(null);
+
+  // Data store access for realized gains
+  const { getRealizedGains, getDividends, getTrades, getCashReport, isDataLoaded } = useDataStore();
 
   // Theme hook for dark mode toggle
   const { setTheme, theme } = useTheme();
@@ -89,21 +91,85 @@ function AppContent() {
     [activeChart]
   );
 
-  const handleRealizedGainsChartReady = chartInfo => {
-    if (chartInfo) {
+  // Chart type configurations for realized gains
+  const getChartConfig = chartType => {
+    const configs = {
+      overview: {
+        label: 'Realized Gains Overview',
+        description: 'Total breakdown of interests, dividends, and realized gains',
+        icon: '📊'
+      },
+      bySymbol: {
+        label: 'Realized Gains by Symbol',
+        description: 'Performance breakdown by individual symbols',
+        icon: '🏷️'
+      },
+      byCategory: {
+        label: 'Realized Gains by Category',
+        description: 'Performance grouped by category and symbol',
+        icon: '📂'
+      }
+    };
+    return configs[chartType];
+  };
+
+  // Handle realized gains chart type change from buttons
+  const handleRealizedGainsChartTypeChange = async chartType => {
+    try {
+      // If chartType is null, clear the chart
+      if (!chartType) {
+        setRealizedGainsChart(null);
+        if (activeChart === 'realized-gains') {
+          setActiveChart(null);
+        }
+        return;
+      }
+
+      // Check if data is loaded
+      if (!isDataLoaded) {
+        throw new Error('No data loaded. Please upload a CSV file first.');
+      }
+
       // Reset other charts and buttons when realized gains chart is activated
       setDividendData(null);
       setCalendarData(null);
       resetOtherButtons('realized-gains');
 
       setActiveChart('realized-gains');
-      setRealizedGainsChart(chartInfo);
-    } else {
-      // If chartInfo is null, just clear the realized gains chart
-      setRealizedGainsChart(null);
-      if (activeChart === 'realized-gains') {
-        setActiveChart(null);
+
+      // Get data from DataStore
+      const [realizedGainsData, dividendData, tradesData, cashReportData] = await Promise.all([
+        getRealizedGains(),
+        getDividends(),
+        getTrades(),
+        getCashReport()
+      ]);
+
+      // Create chart raw data object
+      const chartRawData = {
+        realizedGains: realizedGainsData,
+        dividends: dividendData,
+        trades: tradesData,
+        cashReport: cashReportData
+      };
+
+      // Get chart config
+      const config = getChartConfig(chartType);
+      if (!config) {
+        throw new Error(`Unknown chart type: ${chartType}`);
       }
+
+      // Just store the raw data and config - let the component handle processing
+      setRealizedGainsChart({
+        type: 'realized-gains',
+        subType: chartType,
+        title: config.label,
+        description: config.description,
+        rawData: chartRawData // Component will process this
+      });
+    } catch (err) {
+      console.error('Realized Gains Chart Error:', err);
+      // You could add error state handling here if needed
     }
   };
 
@@ -147,7 +213,9 @@ function AppContent() {
         {/* Extracted Realized Gains Buttons Group */}
         <RealizedGainsButtonsGroup
           ref={realizedGainsButtonRef}
-          onChartDataReady={handleRealizedGainsChartReady}
+          onChartTypeChange={handleRealizedGainsChartTypeChange}
+          isDataLoaded={isDataLoaded}
+          isLoading={false}
         />
       </div>
       {/* Dividend Chart Display */}
@@ -169,26 +237,11 @@ function AppContent() {
       {/* Realized Gains Chart Display */}
       {realizedGainsChart && activeChart === 'realized-gains' && (
         <RealizedGainsComponent
-          chartData={realizedGainsChart.data}
-          selectedSources={realizedGainsChart.selectedSources || []}
+          rawData={realizedGainsChart.rawData}
           activeChart={realizedGainsChart.subType}
           title={realizedGainsChart.title}
           description={realizedGainsChart.description}
         />
-      )}
-
-      {realizedGainsChart && (
-        <div className='result'>
-          <h3>Parsed Sections Data:</h3>
-          <ReactJson
-            src={realizedGainsChart?.selectedSources}
-            theme={theme === 'dark' ? 'monokai' : 'rjv-default'}
-            displayDataTypes={false}
-            displayObjectSize={false}
-            enableClipboard={false}
-            collapsed={2}
-          />
-        </div>
       )}
     </div>
   );

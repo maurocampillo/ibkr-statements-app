@@ -85,14 +85,14 @@ export const useTheme = () => {
     }
   }, []);
 
-  // Theme switching functions
-  const switchToLight = () => {
-    console.log('🌞 switchToLight called');
-  };
-  const switchToDark = () => {
-    console.log('🌙 switchToDark called');
-  };
-  const switchToHighContrast = () => setTheme('high-contrast');
+  // Theme switching functions (commented out to avoid unused variable warnings)
+  // const _switchToLight = () => {
+  //   console.log('🌞 switchToLight called');
+  // };
+  // const _switchToDark = () => {
+  //   console.log('🌙 switchToDark called');
+  // };
+  // const _switchToHighContrast = () => setTheme('high-contrast');
 
   const toggleTheme = () => {
     setTheme(current => {
