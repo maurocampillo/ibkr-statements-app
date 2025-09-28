@@ -219,7 +219,7 @@ describe('DataStoreContext', () => {
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeNull();
       expect(result.current.lastUpdated).toBeNull();
-      expect(typeof result.current.isDataLoaded).toBe('function');
+      expect(typeof result.current.isDataLoaded).toBe('boolean');
     });
 
     it('should throw error when used outside provider', () => {
@@ -245,7 +245,7 @@ describe('DataStoreContext', () => {
       });
 
       expect(result.current.rawData).toEqual(mockIBKRData);
-      expect(result.current.isDataLoaded()).toBe(true);
+      expect(result.current.isDataLoaded).toBe(true);
       expect(result.current.lastUpdated).toBeInstanceOf(Date);
       expect(result.current.error).toBeNull();
     });
@@ -262,7 +262,7 @@ describe('DataStoreContext', () => {
         result.current.setRawData(mockIBKRData);
       });
 
-      expect(result.current.isDataLoaded()).toBe(true);
+      expect(result.current.isDataLoaded).toBe(true);
 
       // Then clear it
       act(() => {
@@ -270,7 +270,7 @@ describe('DataStoreContext', () => {
       });
 
       expect(result.current.rawData).toBeNull();
-      expect(result.current.isDataLoaded()).toBe(false);
+      expect(result.current.isDataLoaded).toBe(false);
       expect(result.current.lastUpdated).toBeNull();
       expect(result.current.error).toBeNull();
     });
@@ -330,14 +330,13 @@ describe('DataStoreContext', () => {
         result.current.setRawData(mockIBKRData);
       });
 
-      const promise = result.current.getDividends();
-
-      // Fast-forward timers
-      act(() => {
+      let dividends;
+      await act(async () => {
+        const promise = result.current.getDividends();
+        // Fast-forward timers
         jest.advanceTimersByTime(100);
+        dividends = await promise;
       });
-
-      const dividends = await promise;
       expect(dividends).toHaveLength(2); // NKE and DG dividends
       expect(dividends[0].symbol).toBe('NKE');
       expect(dividends[0].amount).toBe(184);
@@ -355,13 +354,12 @@ describe('DataStoreContext', () => {
         result.current.setRawData(mockIBKRData);
       });
 
-      const promise = result.current.getDividends({ symbols: ['NKE'] });
-
-      act(() => {
+      let dividends;
+      await act(async () => {
+        const promise = result.current.getDividends({ symbols: ['NKE'] });
         jest.advanceTimersByTime(100);
+        dividends = await promise;
       });
-
-      const dividends = await promise;
       expect(dividends).toHaveLength(1);
       expect(dividends[0].symbol).toBe('NKE');
     });
@@ -378,13 +376,12 @@ describe('DataStoreContext', () => {
       const startDate = new Date('2025-01-01');
       const endDate = new Date('2025-01-31');
 
-      const promise = result.current.getDividends({ startDate, endDate });
-
-      act(() => {
+      let dividends;
+      await act(async () => {
+        const promise = result.current.getDividends({ startDate, endDate });
         jest.advanceTimersByTime(100);
+        dividends = await promise;
       });
-
-      const dividends = await promise;
       expect(dividends).toHaveLength(2); // Both NKE and DG are in January 2025
       expect(dividends[0].paydate).toBeInstanceOf(Date);
       expect(dividends[0].paydate.getTime()).toBeGreaterThanOrEqual(startDate.getTime());
@@ -418,13 +415,12 @@ describe('DataStoreContext', () => {
         result.current.setRawData(mockIBKRData);
       });
 
-      const promise = result.current.getTrades();
-
-      act(() => {
+      let trades;
+      await act(async () => {
+        const promise = result.current.getTrades();
         jest.advanceTimersByTime(100);
+        trades = await promise;
       });
-
-      const trades = await promise;
       expect(trades).toHaveLength(2);
       expect(trades[0].symbol).toBe('ADBE');
       expect(trades[0].buysell).toBe('BUY');
@@ -441,13 +437,12 @@ describe('DataStoreContext', () => {
         result.current.setRawData(mockIBKRData);
       });
 
-      const promise = result.current.getTrades({ symbols: ['ADBE'] });
-
-      act(() => {
+      let trades;
+      await act(async () => {
+        const promise = result.current.getTrades({ symbols: ['ADBE'] });
         jest.advanceTimersByTime(100);
+        trades = await promise;
       });
-
-      const trades = await promise;
       expect(trades).toHaveLength(1);
       expect(trades[0].symbol).toBe('ADBE');
     });
@@ -471,13 +466,12 @@ describe('DataStoreContext', () => {
         result.current.setRawData(mockIBKRData);
       });
 
-      const promise = result.current.getRealizedGains();
-
-      act(() => {
+      let realizedGains;
+      await act(async () => {
+        const promise = result.current.getRealizedGains();
         jest.advanceTimersByTime(100);
+        realizedGains = await promise;
       });
-
-      const realizedGains = await promise;
       expect(realizedGains).toHaveLength(2);
       expect(realizedGains[0].symbol).toBe('ADBE');
       expect(realizedGains[1].symbol).toBe('AMZN');
@@ -503,13 +497,12 @@ describe('DataStoreContext', () => {
         result.current.setRawData(mockIBKRData);
       });
 
-      const promise = result.current.getCashReport();
-
-      act(() => {
+      let cashReport;
+      await act(async () => {
+        const promise = result.current.getCashReport();
         jest.advanceTimersByTime(100);
+        cashReport = await promise;
       });
-
-      const cashReport = await promise;
       expect(cashReport).toHaveLength(2);
       expect(cashReport[0].currencyprimary).toBe('BASE_SUMMARY');
       expect(cashReport[0].brokerinterest).toBe(24.12);
@@ -540,13 +533,12 @@ describe('DataStoreContext', () => {
         result.current.setRawData(incompleteData);
       });
 
-      const promise = result.current.getDividends();
-
-      act(() => {
+      let dividends;
+      await act(async () => {
+        const promise = result.current.getDividends();
         jest.advanceTimersByTime(100);
+        dividends = await promise;
       });
-
-      const dividends = await promise;
       expect(dividends).toEqual([]); // Should return empty array when no statementOfFunds
     });
 
@@ -577,18 +569,12 @@ describe('DataStoreContext', () => {
         result.current.setRawData(mockIBKRData);
       });
 
-      // Start async operation and immediately check loading state
-      let promise;
-      act(() => {
-        promise = result.current.getDividends();
-      });
-
-      // Complete the operation
-      act(() => {
+      // Start async operation and complete it
+      await act(async () => {
+        const promise = result.current.getDividends();
         jest.advanceTimersByTime(100);
+        await promise;
       });
-
-      await promise;
 
       // Check loading state is false after operation
       expect(result.current.isLoading).toBe(false);
