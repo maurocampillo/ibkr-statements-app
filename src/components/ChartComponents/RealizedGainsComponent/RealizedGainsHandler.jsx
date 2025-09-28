@@ -2,41 +2,24 @@ import _ from 'lodash';
 
 // Format data for Nivo Sankey chart
 const formatRealizedGainsDataForSankeyChart = data => {
-  let tradesTotal = 0;
-  let dividendsTotal = 0;
-  let interestsTotal = 0;
   // Process each trade
-  data.trades.forEach(trade => {
+  const tradesTotal = data.trades.map(trade => {
     if (trade.reportdate && trade.fifopnlrealized) {
-      tradesTotal += trade.fifopnlrealized;
+      return trade.fifopnlrealized;
     }
   });
 
   // Process each dividend
-  data.dividends.forEach(dividend => {
-    dividendsTotal += dividend.amount;
-  });
+  const dividendsTotal = data.dividends.map(dividend => dividend.amount);
 
-  interestsTotal = data.cashReport.find(e => e.currencyprimary === 'BASE_SUMMARY')?.brokerinterest;
+  const interestsTotal = data.cashReport.find(e => e.currencyprimary === 'BASE_SUMMARY')?.brokerinterest;
 
   return {
     nodes: [
-      {
-        id: 'interests',
-        nodeColor: 'hsl(56, 70%, 50%)'
-      },
-      {
-        id: 'dividends',
-        nodeColor: 'hsl(124, 70%, 50%)'
-      },
-      {
-        id: 'realizedGainsFromTrades',
-        nodeColor: 'hsl(356, 70%, 50%)'
-      },
-      {
-        id: 'total',
-        nodeColor: 'hsl(255, 70%, 50%)'
-      }
+      { id: 'interests'},
+      { id: 'dividends'},
+      { id: 'realizedGainsFromTrades'},
+      { id: 'total'}
     ],
     links: [
       {
@@ -47,232 +30,244 @@ const formatRealizedGainsDataForSankeyChart = data => {
       {
         source: 'dividends',
         target: 'total',
-        value: dividendsTotal
+        value: _.sum(dividendsTotal)
       },
       {
         source: 'realizedGainsFromTrades',
         target: 'total',
-        value: tradesTotal
+        value: _.sum(tradesTotal)
       }
     ]
   };
 };
 
-const formatRealizedGainsDataForSankeyChartBySymbol = data => {
-  const totalBySymbol = {};
+// Receives an object with multiple symbols and totals, and returns an object
+//  with the top N symbols by aggregated value
+// { AMZN: 100, GOOGL: 40 }
+const getTopNSourcesByAggregatedValue = (data, topN = 10) => {
+  const top10DataSortedAsArray = _.sortBy(_.values(data), '[total]').reverse().slice(0, topN)
+    
+  return _.mapValues(_.keyBy(top10DataSortedAsArray, 'symbol'), 'total')
+}
 
-  data.trades.forEach(trade => {
-    if (trade.reportdate && trade.fifopnlrealized) {
-      totalBySymbol[trade.underlyingsymbol] =
-        (totalBySymbol[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
+// Receives the raw data object and returns the realized gains iterating over the trades. It determines if the element is a realized gain by checking the fifopnlrealized. 
+// Supports receiving a list of assetclasses and a list of symbols to filter the trades.
+// The output is: { AMZN: { symbol: 'AMZN', total: 100 } }
+const computeTradeGainsBySymbol = (data, assetclass = [], symbols = []) => {
+  // Process each trade
+  return data.trades.reduce((acc, trade) => {
+    if (trade.reportdate && trade.fifopnlrealized && assetclass.includes(trade.assetclass) && (symbols.length === 0 || symbols.includes(trade.underlyingsymbol))) {
+      let elem = { symbol: trade.underlyingsymbol, total: trade.fifopnlrealized }
+      
+      if (acc[trade.underlyingsymbol]) {              
+        elem.total += acc[trade.underlyingsymbol].total
+      }
+
+      acc[trade.underlyingsymbol] = elem      
     }
-  });
-
-  // Process each dividend
-  data.dividends.forEach(dividend => {
-    totalBySymbol[dividend.underlyingsymbol] =
-      (totalBySymbol[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
-  });
-
-  const totalBySymbolArray = Object.entries(totalBySymbol).reduce((acc, [symbol, total]) => {
-    acc[symbol] = { symbol, total };
     return acc;
   }, {});
+}
 
-  const arrayForSankey = _.sortBy(Object.values(totalBySymbolArray), ['symbol']);
+// Receives the raw data object and returns the dividends iterating over the dividends. It supports receiving a list of symbols to filter the dividends.
+// The output is: { AMZN: { symbol: 'AMZN', total: 100 } }
+const computeDividendsBySymbol = (data, symbols = []) => {
+  return data.dividends.reduce((acc, dividend) => {
+    if (symbols.length === 0 || symbols.includes(dividend.underlyingsymbol)) {
+      let elem = { symbol: dividend.underlyingsymbol, total: dividend.amount }
+      
+      if (acc[dividend.underlyingsymbol]) {              
+        elem.total += acc[dividend.underlyingsymbol].total
+      }
+
+      acc[dividend.underlyingsymbol] = elem      
+    }
+    return acc;
+  }, {});
+}
+
+// Receives the raw data object from the store and returns the data formatted for the sankey chart
+// by grouping the realized gains and dividends by symbol
+// The output is:
+//  {
+//    nodes: [{ id: 'AMZN', id: 'GOOGL', id: 'total' }],
+//    links: [{ source: 'AMZN', value: 100, target: 'total' }, { source: 'GOOGL', value: 200, target: 'total' }]
+//  }
+const formatRealizedGainsDataForSankeyChartBySymbol = (data, symbols = []) => {
+  const tradesBySymbol = computeTradeGainsBySymbol(data, ["STK", "OPT"], symbols)  
+  const dividendsBySymbol = computeDividendsBySymbol(data, symbols)
+  const totalBySymbol = {};
+
+  _.values(tradesBySymbol).concat(_.values(dividendsBySymbol)).reduce((acc, e) => {
+    let elem = { symbol: e.symbol, total: e.total }
+   
+    if (acc[e.symbol]) { elem.total += acc[e.symbol].total }
+
+    acc[e.symbol] = elem      
+    
+    return acc
+  }, totalBySymbol);
+  
+  const arrayForSankey = _.sortBy(Object.values(totalBySymbol), ['symbol']);
 
   const nodes = arrayForSankey.map(d => {
     return { id: d.symbol };
   });
-  const links = arrayForSankey.map(d => {
-    return { source: d.symbol, value: d.total, target: 'total' };
-  });
+  const links = arrayForSankey.map(d => ({ source: d.symbol, value: d.total, target: 'total' }));
+  
   return {
     nodes: nodes.concat({ id: 'total' }),
     links: links
   };
 };
 
-const computeRealizedGainsByCategory = data => {
-  // Process each trade
-  const stocksBySymbol = data.trades.reduce((acc, trade) => {
-    if (trade.reportdate && trade.fifopnlrealized && trade.assetclass == "STK") {
-      acc[trade.underlyingsymbol] =
-        (acc[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
+// Just returns an array of symbols
+const getTopNPerformersSymbols = (data, topN = 10) => {  
+  const tradesBySymbol = computeTradeGainsBySymbol(data, ["STK", "OPT"], [])  
+  const dividendsBySymbol = computeDividendsBySymbol(data, [])
+  const totalBySymbol = {};
+
+  _.values(tradesBySymbol).concat(_.values(dividendsBySymbol)).reduce((acc, e) => {
+    let elem = { symbol: e.symbol, total: e.total }
+   
+    if (acc[e.symbol]) {              
+      elem.total += acc[e.symbol].total
     }
-    return acc;
-  }, {});
 
-  // Process each option
-  const optionsBySymbol = data.trades.reduce((acc, trade) => {
-    if (trade.reportdate && trade.fifopnlrealized && trade.assetclass == "OPT") {
-      acc[trade.underlyingsymbol] =
-        (acc[trade.underlyingsymbol] || 0) + (trade.fifopnlrealized || 0);
-    }
-    return acc;
-  }, {});
+    acc[e.symbol] = elem      
+    return acc
+  }, totalBySymbol);
 
-  // Process each dividend
-  const dividendsBySymbol = data.dividends.reduce((acc, dividend) => {
-    acc[dividend.underlyingsymbol] =
-      (acc[dividend.underlyingsymbol] || 0) + (dividend.amount || 0);
-    return acc;  
-  }, {});
+    debugger
+  return Object.keys(getTopNSourcesByAggregatedValue(totalBySymbol, topN))
+}
 
+const computeRealizedGainsByCategory = (data, symbols = []) => {
   return {
-    stocksBySymbol: stocksBySymbol,
-    optionsBySymbol: optionsBySymbol,
-    dividendsBySymbol: dividendsBySymbol
+    stocksBySymbol: computeTradeGainsBySymbol(data, ["STK"], symbols),
+    optionsBySymbol: computeTradeGainsBySymbol(data, ["OPT"], symbols),
+    dividendsBySymbol:  computeDividendsBySymbol(data, symbols)
   };
 }
 
+const getInstrumentBySymbolForSankeyChart = (instrumentBySymbol, target) => {
+  const nodes = instrumentBySymbol.map((e) => e.symbol)
+  const realizedGainsLinks = _.sortBy(instrumentBySymbol, ['total']).reverse().map(d => {
+    return { source: d.symbol, value: d.total, target: target };
+  });
+
+  return {
+    nodes: nodes,
+    links: realizedGainsLinks,
+    total: instrumentBySymbol.map((e) => e.total).reduce((a, b) => a + b, 0)
+  };
+}
+
+// Receives the raw data object from the store and returns the data formatted for the sankey chart
+// by grouping the stocks, options and dividend gains by symbol
+// The output is:
+//  {
+//    nodes: [{ id: 'AMZN' }, { id: 'stocks' }, { id: 'options' }, { id: 'dividends' }, { id: 'total' }],
+//    links: [{ source: 'AMZN', target: 'stocks', value: 100 }, { source: 'AMZN', target: 'options', value: 200 }, { source: 'options', target: 'total', value: 200 }, { source: 'stocks', target: 'total', value: 100 }]
+//  }
 const computeRealizedGainsByCategoryForSankeyChart = (stocksBySymbol, optionsBySymbol, dividendsBySymbol) => {
-  const realizedGainsSymbolsSorted = _.sortBy(Object.keys(stocksBySymbol));
+  const stocksBySymbolData = getInstrumentBySymbolForSankeyChart(stocksBySymbol, 'stocks')
+  const optionsBySymbolData = getInstrumentBySymbolForSankeyChart(optionsBySymbol, 'options')
+  const dividendsBySymbolData = getInstrumentBySymbolForSankeyChart(dividendsBySymbol, 'dividends')
 
-  const optionsBySymbolSorted = _.sortBy(Object.keys(optionsBySymbol));
-
-  const dividendsSymbolSorted = _.sortBy(Object.keys(dividendsBySymbol));
-  
-  const nodes = _.uniq(realizedGainsSymbolsSorted.concat(optionsBySymbolSorted).concat(dividendsSymbolSorted))
-    .map(d => {
-      return { id: d };
-    })
+  const nodes = _.uniq(stocksBySymbolData.nodes.concat(optionsBySymbolData.nodes).concat(dividendsBySymbolData.nodes))
+    .map(d => ({ id: d }))
     .concat({ id: 'total' })
-    .concat({ id: 'realizedGains' })
+    .concat({ id: 'stocks' })
     .concat({ id: 'options' })
     .concat({ id: 'dividends' })  
-
-  const realizedGainsLinks = realizedGainsSymbolsSorted.map(d => {
-    return { source: d, value: stocksBySymbol[d], target: 'realizedGains' };
-  });
-  const optionLinks = optionsBySymbolSorted.map(d => {
-    return { source: d, value: optionsBySymbol[d], target: 'options' };
-  });
-  const dividendsLinks = dividendsSymbolSorted.map(d => {
-    return { source: d, value: dividendsBySymbol[d], target: 'dividends' };
-  });
-
+  
   const totalLinks = [
     {
-      source: 'realizedGains',
-      value: Object.values(stocksBySymbol).reduce((a, b) => a + b, 0),
+      source: 'stocks',
+      value: stocksBySymbolData.total,
       target: 'total'
     },
     {
       source: 'options',
-      value: Object.values(optionsBySymbol).reduce((a, b) => a + b, 0),
+      value: optionsBySymbolData.total,
       target: 'total'
     },
     {
       source: 'dividends',
-      value: Object.values(dividendsBySymbol).reduce((a, b) => a + b, 0),
+      value: dividendsBySymbolData.total,
       target: 'total'
     }
   ];
 
-  const res = {
+  return {
     nodes: nodes,
-    links: realizedGainsLinks.concat(optionLinks).concat(dividendsLinks).concat(totalLinks)
+    links: stocksBySymbolData.links.concat(optionsBySymbolData.links).concat(dividendsBySymbolData.links).concat(totalLinks)
   };
-  
-  return res;
 }
 
-const formatRealizedGainsDataForSankeyChartByCategory = data => {
-  const { stocksBySymbol, optionsBySymbol, dividendsBySymbol } = computeRealizedGainsByCategory(data)
-  formatRealizedGainsDataForSankeyChartByCategoryTop10(data) //TODO: remove
-  return computeRealizedGainsByCategoryForSankeyChart(stocksBySymbol, optionsBySymbol, dividendsBySymbol)
-};
-
-// Receives an object and returns an object with the top 10 sources by aggregated value
-const getTop10SourcesByAggregatedValue = (data) => {
-  const top10DataSortedAsArray = Object.keys(data).map(key => ({ symbol: key, total: data[key] }) ).sort((a, b) => b.total - a.total).slice(0, 10)
-  return _.mapValues(_.keyBy(top10DataSortedAsArray, 'symbol'), 'total')
-}
-
-
-const formatRealizedGainsDataForSankeyChartByCategoryTop10 = data => {
-  const { stocksBySymbol, optionsBySymbol, dividendsBySymbol } = computeRealizedGainsByCategory(data)
+const formatRealizedGainsDataForSankeyChartByCategory = (data, symbols = []) => {
+  const { stocksBySymbol, optionsBySymbol, dividendsBySymbol } = computeRealizedGainsByCategory(data, symbols)
   
-  const stocksBySymbolTop10 = getTop10SourcesByAggregatedValue(stocksBySymbol)
-  const optionsBySymbolTop10 = getTop10SourcesByAggregatedValue(optionsBySymbol)
-  const dividendsBySymbolTop10 = getTop10SourcesByAggregatedValue(dividendsBySymbol)
+  return computeRealizedGainsByCategoryForSankeyChart(_.values(stocksBySymbol), _.values(optionsBySymbol), _.values(dividendsBySymbol))
+};
+
+// Helper function to create aggregated nodes and links with totals for symbol view
+const createAggregatedChartDataBySymbol = (nodes, links) => {
+  const aggregatedNodes = _.uniqBy(nodes.concat([{ id: 'total' }]), 'id');
+  return {
+    nodes: aggregatedNodes,
+    links: links
+  };
+};
+
+// Helper function to get filtered nodes from links
+const getFilteredNodes = (allNodes, links) => {
+  const referencedNodeIds = new Set();
+  links.forEach(link => {
+    referencedNodeIds.add(link.source);
+    referencedNodeIds.add(link.target);
+  });
+  return allNodes.filter(node => referencedNodeIds.has(node.id));
+};
+
+// New filtered formatter functions that handle selectedSources parameter
+const formatRealizedGainsDataForSankeyChartWithFilter = (data, selectedSources = []) => {
+  // Get the base chart data
+  const baseData = formatRealizedGainsDataForSankeyChart(data);
   
-  return computeRealizedGainsByCategoryForSankeyChart(
-      stocksBySymbolTop10,
-      optionsBySymbolTop10,
-      dividendsBySymbolTop10,
-  )
-};
-
-const handleRealizedGainsClick = (chartRawData, setChartData, setShowChart) => {
-  const formattedData = formatRealizedGainsDataForSankeyChart(chartRawData);
-  setChartData(formattedData);
-  setShowChart('realizedGainsSankeyCart');
-};
-
-const handleRealizedGainsBySymbolClick = (chartRawData, setChartData, setShowChart) => {
-  const formattedData = formatRealizedGainsDataForSankeyChartBySymbol(chartRawData);
-  setChartData(formattedData);
-  setShowChart('realizedGainsSankeyCartBySymbol');
-};
-
-const handleRealizedGainsByCategoryClick = (chartRawData, setChartData, setShowChart) => {
-  const formattedData = formatRealizedGainsDataForSankeyChartByCategory(chartRawData);
-  setChartData(formattedData);
-  setShowChart('realizedGainsSankeyCartByCategory');
-};
-
-/**
- * Extracts the top N sources by aggregated value from chart data links
- * @param {Array} links - Array of link objects with source, target, and value properties
- * @param {number} topN - Number of top sources to return (default: 10)
- * @returns {Array} Array of individual link elements for the top N sources by aggregated value
- */
-const getTopSourcesByAggregatedValue = (links, topN = 10) => {
-  if (!links || !Array.isArray(links)) {
-    return [];
+  // If no sources selected, return base data
+  if (selectedSources.length === 0) {
+    return baseData;
   }
-
-  // Filter out links that go to "total" as these are aggregation links, not source data
-  const sourceLinks = links.filter(
-    link => link.target !== 'total' && link.source && typeof link.value === 'number'
+  
+  // Filter links based on selected sources
+  const filteredLinks = baseData.links.filter(link => 
+    selectedSources.includes(link.source) || 
+    link.target === 'total' // Always include total aggregation links
   );
-
-  // Group by source and calculate total value for each source
-  const sourceAggregates = {};
-  sourceLinks.forEach(link => {
-    if (!sourceAggregates[link.source]) {
-      sourceAggregates[link.source] = {
-        totalValue: 0,
-        elements: []
-      };
-    }
-    sourceAggregates[link.source].totalValue += link.value;
-    sourceAggregates[link.source].elements.push(link);
-  });
-
-  // Sort sources by total aggregated value (descending)
-  const sortedSources = Object.entries(sourceAggregates)
-    .sort(([, a], [, b]) => b.totalValue - a.totalValue)
-    .slice(0, topN);
-
-  // Return all individual elements for the top N sources
-  const topSourceElements = [];
-  sortedSources.forEach(([source, data]) => {
-    topSourceElements.push(...data.elements);
-  });
-
-  return topSourceElements;
+  
+  const filteredNodes = getFilteredNodes(baseData.nodes, filteredLinks);
+  
+  return createAggregatedChartDataBySymbol(filteredNodes, filteredLinks);
 };
 
-export {
-  handleRealizedGainsClick,
-  handleRealizedGainsBySymbolClick,
-  handleRealizedGainsByCategoryClick,
-  formatRealizedGainsDataForSankeyChart,
-  formatRealizedGainsDataForSankeyChartBySymbol,
-  formatRealizedGainsDataForSankeyChartByCategory,
-  getTopSourcesByAggregatedValue,
-  formatRealizedGainsDataForSankeyChartByCategoryTop10
+const formatRealizedGainsDataForSankeyChartBySymbolWithFilter = (data) => {
+  const symbols = getTopNPerformersSymbols(data)
+  return formatRealizedGainsDataForSankeyChartBySymbol(data, symbols);
+};
+
+const formatRealizedGainsDataForSankeyChartByCategoryWithFilter = (data, selectedSources = []) => {
+  if (selectedSources.length === 0) {
+    const symbols = getTopNPerformersSymbols(data)
+    return formatRealizedGainsDataForSankeyChartByCategory(data, symbols);
+  } else {   
+    return formatRealizedGainsDataForSankeyChartByCategory(data, selectedSources);
+  }
+};
+
+export {      
+  formatRealizedGainsDataForSankeyChartWithFilter,
+  formatRealizedGainsDataForSankeyChartBySymbolWithFilter,
+  formatRealizedGainsDataForSankeyChartByCategoryWithFilter
 };

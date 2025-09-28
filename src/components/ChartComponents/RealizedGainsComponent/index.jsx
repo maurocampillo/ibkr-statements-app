@@ -5,24 +5,50 @@ import { useMemo, useState, useEffect } from 'react';
 import SankeyChart from '../../Chart/SankeyChart';
 import { Autocomplete } from '../../shared';
 
-import { getTopSourcesByAggregatedValue, formatRealizedGainsDataForSankeyChartByCategoryTop10 } from './RealizedGainsHandler';
+import {   
+  formatRealizedGainsDataForSankeyChartWithFilter,
+  formatRealizedGainsDataForSankeyChartBySymbolWithFilter,
+  formatRealizedGainsDataForSankeyChartByCategoryWithFilter,  
+} from './RealizedGainsHandler';
 import './RealizedGainsComponent.css';
 
 const RealizedGainsComponent = ({
-  chartData,
-  selectedSources: initialSelectedSources = [],
+  rawData,
   activeChart,
   title,
   description,
   className = ''
 }) => {
-  // Local state for managing selected sources in the autocomplete
-  const [selectedSources, setSelectedSources] = useState(initialSelectedSources);
+  // Local state for managing selected sources and processed data
+  const [selectedSources, setSelectedSources] = useState([]);
+  const [chartData, setChartData] = useState(null);
 
-  // Sync selectedSources state when initialSelectedSources prop changes
+  // Chart type configurations
+  const getChartFormatter = (chartType) => {
+    const formatters = {
+      overview: formatRealizedGainsDataForSankeyChartWithFilter,
+      bySymbol: formatRealizedGainsDataForSankeyChartBySymbolWithFilter,
+      byCategory: formatRealizedGainsDataForSankeyChartByCategoryWithFilter
+    };
+    return formatters[chartType];
+  };
+
+  // Process data when rawData, activeChart, or selectedSources change
   useEffect(() => {
-    setSelectedSources(initialSelectedSources);
-  }, [initialSelectedSources]);
+    if (!rawData || !activeChart) {
+      setChartData(null);
+      return;
+    }
+
+    const formatter = getChartFormatter(activeChart);
+    if (!formatter) {
+      setChartData(null);
+      return;
+    }
+
+    const processedData = formatter(rawData, selectedSources);
+    setChartData(processedData);
+  }, [rawData, activeChart, selectedSources]);
 
   // Calculate available sources for autocomplete
   const availableSources = useMemo(() => {
@@ -46,9 +72,9 @@ const RealizedGainsComponent = ({
     if (!chartData?.links) {
       return;
     }
-
-    const top10Sources = getTopSourcesByAggregatedValue(chartData.links, 10);
-    const top10SourceNames = _.sortBy(_.uniq(top10Sources.map(item => item.source)));
+    
+    const top10Sources = formatRealizedGainsDataForSankeyChartBySymbolWithFilter(rawData);
+    const top10SourceNames = _.sortBy(_.uniq(top10Sources.links.map(item => item.source)));
 
     setSelectedSources(top10SourceNames);
   };
@@ -95,110 +121,12 @@ const RealizedGainsComponent = ({
 
   const stats = getChartStats();
 
-  // Helper function to create aggregated nodes and links with totals for category view
-  const createAggregatedChartDataByCategory = (nodes, links) => {
-    const realizedGainsTotal = _.sumBy(
-      links.filter(e => e.target === 'realizedGains'),
-      'value'
-    );
-    const dividendsTotal = _.sumBy(
-      links.filter(e => e.target === 'dividends'),
-      'value'
-    );
-    const optionsTotal = _.sumBy(
-      links.filter(e => e.target === 'options'),
-      'value'
-    );
-
-
-    const aggregatedNodes = _.uniqBy(
-      nodes.concat([{ id: 'realizedGains' }, { id: 'dividends' }, { id: 'options' }, { id: 'total' }]),
-      'id'
-    );
-
-    const aggregatedLinks = links.concat([
-      { source: 'realizedGains', target: 'total', value: realizedGainsTotal },
-      { source: 'dividends', target: 'total', value: dividendsTotal },
-      { source: 'options', target: 'total', value: optionsTotal }
-    ]);
-
-    return {
-      nodes: aggregatedNodes,
-      links: aggregatedLinks
-    };
-  };
-
-  // Helper function to create aggregated nodes and links with totals for symbol view
-  const createAggregatedChartDataBySymbol = (nodes, links) => {
-    const aggregatedNodes = _.uniqBy(nodes.concat([{ id: 'total' }]), 'id');
-    return {
-      nodes: aggregatedNodes,
-      links: links
-    };
-  };
-
-  // Helper function to get filtered nodes from links
-  const getFilteredNodes = (chartData, links) => {
-    const referencedNodeIds = new Set();
-    links.forEach(link => {
-      referencedNodeIds.add(link.source);
-      referencedNodeIds.add(link.target);
-    });
-    return chartData.nodes.filter(node => referencedNodeIds.has(node.id));
-  };
-
-  // Chart type strategies for handling different data processing needs
-  const chartStrategies = {
-    byCategory: {
-      getDefaultData: chartData => {
-        const links = getTopSourcesByAggregatedValue(chartData.links, 10);
-        const symbols = links.map(link => link.source);
-        const nodes = chartData.nodes.filter(node => symbols.includes(node.id));
-        return { nodes, links };
-      },
-      processData: (nodes, links) => createAggregatedChartDataByCategory(nodes, links)
-    },
-    bySymbol: {
-      getDefaultData: chartData => {
-        const links = _.sortBy(chartData.links, 'value').reverse().slice(0, 10);
-        const symbols = links.map(link => link.source);
-        const nodes = chartData.nodes.filter(node => symbols.includes(node.id));
-        return { nodes, links };
-      },
-      processData: (nodes, links) => createAggregatedChartDataBySymbol(nodes, links)
-    },
-    overview: {
-      getDefaultData: chartData => {
-        return { nodes: chartData.nodes, links: chartData.links };
-      },
-      processData: (nodes, links) => createAggregatedChartDataBySymbol(nodes, links)
-    }
-  };
-
-  // Create filtered chart data based on selected sources and active chart type
-  const filteredChartData = useMemo(() => {
-    if (!chartData || !chartData.links || !activeChart) {
-      return chartData;
-    }
-
-    const strategy = chartStrategies[activeChart];
-    if (!strategy) {
-      return chartData;
-    }
-
-    if (selectedSources.length === 0) {
-      const { nodes, links } = strategy.getDefaultData(chartData);
-      return strategy.processData(nodes, links);
-    }
-
-    const filteredLinks = chartData.links.filter(link => selectedSources.includes(link.source));
-    const filteredNodes = getFilteredNodes(chartData, filteredLinks);
-
-    return strategy.processData(filteredNodes, filteredLinks);
-  }, [chartData, selectedSources, activeChart]);
+  // The chart data is now processed entirely in the handler
+  // This component just displays the data and manages UI state
+  const displayData = chartData;
 
   // Show no-data message if there's no chart data
-  if (!chartData || !filteredChartData) {
+  if (!chartData || !displayData) {
     return (
       <div className={`realized-gains-component ${className}`}>
         <div className='realized-gains-container'>
@@ -252,7 +180,7 @@ const RealizedGainsComponent = ({
         )}
 
         <div className='realized-gains-chart-wrapper'>
-          <SankeyChart chartData={filteredChartData} />
+          <SankeyChart chartData={displayData} />
         </div>
 
         {/* Stats Preview */}
@@ -319,11 +247,12 @@ const RealizedGainsComponent = ({
 };
 
 RealizedGainsComponent.propTypes = {
-  chartData: PropTypes.shape({
-    nodes: PropTypes.array,
-    links: PropTypes.array
+  rawData: PropTypes.shape({
+    realizedGains: PropTypes.array,
+    dividends: PropTypes.array,
+    trades: PropTypes.array,
+    cashReport: PropTypes.array
   }),
-  selectedSources: PropTypes.array,
   activeChart: PropTypes.string,
   title: PropTypes.string,
   description: PropTypes.string,
