@@ -72,7 +72,7 @@ const Autocomplete = ({
     }
   };
 
-  const handleInputBlur = e => {
+  const handleInputBlur = _e => {
     // Delay hiding dropdown to allow for clicks on options
     setTimeout(() => {
       if (!dropdownRef.current?.contains(document.activeElement)) {

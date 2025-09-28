@@ -92,7 +92,7 @@ function AppContent() {
   );
 
   // Chart type configurations for realized gains
-  const getChartConfig = (chartType) => {
+  const getChartConfig = chartType => {
     const configs = {
       overview: {
         label: 'Realized Gains Overview',
@@ -100,13 +100,13 @@ function AppContent() {
         icon: '📊'
       },
       bySymbol: {
-        label: 'Realized Gains by Symbol', 
+        label: 'Realized Gains by Symbol',
         description: 'Performance breakdown by individual symbols',
         icon: '🏷️'
       },
       byCategory: {
         label: 'Realized Gains by Category',
-        description: 'Performance grouped by category and symbol', 
+        description: 'Performance grouped by category and symbol',
         icon: '📂'
       }
     };
@@ -114,7 +114,7 @@ function AppContent() {
   };
 
   // Handle realized gains chart type change from buttons
-  const handleRealizedGainsChartTypeChange = async (chartType) => {
+  const handleRealizedGainsChartTypeChange = async chartType => {
     try {
       // If chartType is null, clear the chart
       if (!chartType) {
@@ -140,7 +140,7 @@ function AppContent() {
       // Get data from DataStore
       const [realizedGainsData, dividendData, tradesData, cashReportData] = await Promise.all([
         getRealizedGains(),
-        getDividends(), 
+        getDividends(),
         getTrades(),
         getCashReport()
       ]);
@@ -167,14 +167,11 @@ function AppContent() {
         description: config.description,
         rawData: chartRawData // Component will process this
       });
-
     } catch (err) {
       console.error('Realized Gains Chart Error:', err);
       // You could add error state handling here if needed
     }
   };
-
-
 
   const handleDarkModeToggle = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -246,7 +243,6 @@ function AppContent() {
           description={realizedGainsChart.description}
         />
       )}
-
     </div>
   );
 }

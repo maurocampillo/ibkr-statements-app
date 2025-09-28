@@ -9,7 +9,7 @@ function LineChartComponent(props) {
 
   // Theme-aware colors
   const isDark = theme === 'dark';
-  const isHighContrast = theme === 'high-contrast';
+  // const _isHighContrast = theme === 'high-contrast';
 
   // Get computed CSS variables from the document
   const getComputedCSSVar = varName => {

@@ -5,26 +5,20 @@ import { useMemo, useState, useEffect } from 'react';
 import SankeyChart from '../../Chart/SankeyChart';
 import { Autocomplete } from '../../shared';
 
-import {   
+import {
   formatRealizedGainsDataForSankeyChartWithFilter,
   formatRealizedGainsDataForSankeyChartBySymbolWithFilter,
-  formatRealizedGainsDataForSankeyChartByCategoryWithFilter,  
+  formatRealizedGainsDataForSankeyChartByCategoryWithFilter
 } from './RealizedGainsHandler';
 import './RealizedGainsComponent.css';
 
-const RealizedGainsComponent = ({
-  rawData,
-  activeChart,
-  title,
-  description,
-  className = ''
-}) => {
+const RealizedGainsComponent = ({ rawData, activeChart, title, description, className = '' }) => {
   // Local state for managing selected sources and processed data
   const [selectedSources, setSelectedSources] = useState([]);
   const [chartData, setChartData] = useState(null);
 
   // Chart type configurations
-  const getChartFormatter = (chartType) => {
+  const getChartFormatter = chartType => {
     const formatters = {
       overview: formatRealizedGainsDataForSankeyChartWithFilter,
       bySymbol: formatRealizedGainsDataForSankeyChartBySymbolWithFilter,
@@ -72,7 +66,7 @@ const RealizedGainsComponent = ({
     if (!chartData?.links) {
       return;
     }
-    
+
     const top10Sources = formatRealizedGainsDataForSankeyChartBySymbolWithFilter(rawData);
     const top10SourceNames = _.sortBy(_.uniq(top10Sources.links.map(item => item.source)));
 

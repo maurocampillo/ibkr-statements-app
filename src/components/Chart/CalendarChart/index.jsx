@@ -4,7 +4,7 @@ import './styles.css';
 const CalendarChart = ({
   data = {},
   defaultBoxColor = '#ffffff',
-  boxBorderColor = '#000000',
+  boxBorderColor: _boxBorderColor = '#000000',
   rowCount = 1
 }) => {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
